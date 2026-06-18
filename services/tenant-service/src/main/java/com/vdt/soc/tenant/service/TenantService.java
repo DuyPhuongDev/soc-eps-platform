@@ -1,22 +1,23 @@
 package com.vdt.soc.tenant.service;
 
+import com.vdt.soc.common.model.dto.TenantApiKeyMapping;
+import com.vdt.soc.common.model.enumeration.ApiKeyStatus;
 import com.vdt.soc.common.model.enumeration.UserRole;
+import com.vdt.soc.common.model.enumeration.UserStatus;
 import com.vdt.soc.tenant.dto.CreateTenantRequest;
 import com.vdt.soc.tenant.dto.CreateTenantResponse;
-import com.vdt.soc.common.model.dto.TenantApiKeyMapping;
 import com.vdt.soc.tenant.dto.TenantResponse;
 import com.vdt.soc.tenant.dto.UpdateTenantRequest;
 import com.vdt.soc.tenant.entity.Tenant;
 import com.vdt.soc.tenant.entity.TenantApiKey;
 import com.vdt.soc.tenant.entity.User;
-import com.vdt.soc.common.model.enumeration.ApiKeyStatus;
-import com.vdt.soc.common.model.enumeration.UserStatus;
 import com.vdt.soc.tenant.exception.DuplicateResourceException;
 import com.vdt.soc.tenant.exception.ResourceNotFoundException;
 import com.vdt.soc.tenant.repository.TenantApiKeyRepository;
 import com.vdt.soc.tenant.repository.TenantRepository;
 import com.vdt.soc.tenant.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class TenantService {
@@ -36,6 +38,8 @@ public class TenantService {
 
     @Transactional
     public CreateTenantResponse createTenant(CreateTenantRequest request) {
+        log.info("Creating tenant: name={}, email={}", request.getName(), request.getEmail());
+
         if (tenantRepository.existsByEmail(request.getEmail())) {
             throw new DuplicateResourceException("Tenant email already exists: " + request.getEmail());
         }
@@ -73,6 +77,7 @@ public class TenantService {
                 .build();
         apiKeyRepository.save(apiKey);
 
+        log.info("Tenant created successfully: id={}, name={}", tenant.getId(), tenant.getName());
         return CreateTenantResponse.builder()
                 .tenant(toResponse(tenant))
                 .apiKey(rawApiKey)
@@ -82,13 +87,21 @@ public class TenantService {
 
     @Transactional(readOnly = true)
     public List<TenantResponse> listTenants() {
-        return tenantRepository.findAll().stream().map(this::toResponse).toList();
+        log.debug("Listing all tenants");
+        List<TenantResponse> tenants = tenantRepository.findAll().stream().map(this::toResponse).toList();
+        log.debug("Found {} tenants", tenants.size());
+        return tenants;
     }
 
     @Transactional(readOnly = true)
     public TenantResponse getTenant(UUID id) {
+        log.debug("Getting tenant by id: {}", id);
         Tenant tenant = tenantRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Tenant not found: " + id));
+                .orElseThrow(() -> {
+                    log.warn("Tenant not found: id={}", id);
+                    return new ResourceNotFoundException("Tenant not found: " + id);
+                });
+        log.debug("Tenant found: id={}, name={}", tenant.getId(), tenant.getName());
         return toResponse(tenant);
     }
 

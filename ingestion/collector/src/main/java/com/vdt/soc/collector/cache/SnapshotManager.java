@@ -17,10 +17,10 @@ import java.util.List;
 
 /**
  * Manages JSON snapshot files for cache fallback.
- *
+ * <p>
  * Snapshot files are written on every successful cache refresh
  * and read when internal API calls fail (license-service or tenant-service down).
- *
+ * <p>
  * All I/O is blocking (Files.read and Files.write) but called exclusively
  * from scheduled methods, never from Netty event loop threads.
  */
@@ -29,11 +29,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SnapshotManager {
 
+    private static final TypeReference<List<PolicyDTO>> POLICIES_TYPE = new TypeReference<>() {
+    };
+    private static final TypeReference<List<TenantApiKeyMapping>> API_KEYS_TYPE = new TypeReference<>() {
+    };
     private final CacheProperties cacheProperties;
     private final ObjectMapper objectMapper;
-
-    private static final TypeReference<List<PolicyDTO>> POLICIES_TYPE = new TypeReference<>() {};
-    private static final TypeReference<List<TenantApiKeyMapping>> API_KEYS_TYPE = new TypeReference<>() {};
 
     /**
      * Write policy cache snapshot to disk.

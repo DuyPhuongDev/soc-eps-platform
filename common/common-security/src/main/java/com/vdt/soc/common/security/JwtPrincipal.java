@@ -7,4 +7,5 @@ public record JwtPrincipal(
         UUID tenantId,
         String username,
         String role
-) {}
+) {
+}

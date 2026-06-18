@@ -1,15 +1,15 @@
 package com.vdt.soc.license.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vdt.soc.common.model.dto.PolicyDTO;
+import com.vdt.soc.common.model.enumeration.LicensePlan;
+import com.vdt.soc.common.model.enumeration.LicenseStatus;
 import com.vdt.soc.license.dto.CreateLicenseRequest;
 import com.vdt.soc.license.dto.LicenseAuditLogResponse;
 import com.vdt.soc.license.dto.LicenseResponse;
-import com.vdt.soc.common.model.dto.PolicyDTO;
 import com.vdt.soc.license.dto.UpdateLicenseRequest;
 import com.vdt.soc.license.entity.License;
 import com.vdt.soc.license.entity.LicenseAuditLog;
-import com.vdt.soc.common.model.enumeration.LicensePlan;
-import com.vdt.soc.common.model.enumeration.LicenseStatus;
 import com.vdt.soc.license.exception.LicenseNotFoundException;
 import com.vdt.soc.license.repository.LicenseAuditLogRepository;
 import com.vdt.soc.license.repository.LicenseRepository;

@@ -1,11 +1,11 @@
 package com.vdt.soc.tenant.service;
 
+import com.vdt.soc.common.model.enumeration.UserRole;
+import com.vdt.soc.common.model.enumeration.UserStatus;
+import com.vdt.soc.common.security.JwtProperties;
 import com.vdt.soc.tenant.dto.LoginRequest;
 import com.vdt.soc.tenant.dto.LoginResponse;
 import com.vdt.soc.tenant.entity.User;
-import com.vdt.soc.common.model.enumeration.UserRole;
-import com.vdt.soc.common.security.JwtProperties;
-import com.vdt.soc.common.model.enumeration.UserStatus;
 import com.vdt.soc.tenant.exception.UnauthorizedException;
 import com.vdt.soc.tenant.repository.UserRepository;
 import com.vdt.soc.tenant.security.TenantJwtUtil;
@@ -28,12 +28,17 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    @Mock private UserRepository userRepository;
-    @Mock private PasswordEncoder passwordEncoder;
-    @Mock private TenantJwtUtil tenantJwtUtil;
-    @Mock private JwtProperties jwtProperties;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    @Mock
+    private TenantJwtUtil tenantJwtUtil;
+    @Mock
+    private JwtProperties jwtProperties;
 
-    @InjectMocks private AuthService authService;
+    @InjectMocks
+    private AuthService authService;
 
     private User user;
 

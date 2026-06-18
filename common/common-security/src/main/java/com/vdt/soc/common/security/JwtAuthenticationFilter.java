@@ -43,9 +43,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 JwtAuthentication auth = new JwtAuthentication(
                         jwtUtil.extractUserId(claims),
                         jwtUtil.extractTenantId(claims),
-                        jwtUtil.extractRole(claims),
-                        jwtUtil.extractUsername(claims));
+                        jwtUtil.extractUsername(claims),
+                        jwtUtil.extractRole(claims));
                 SecurityContextHolder.getContext().setAuthentication(auth);
+                log.info("Authentication set successfully for user: {}", jwtUtil.extractUsername(claims));
             } catch (JwtException | IllegalArgumentException ex) {
                 log.debug("Invalid JWT token: {}", ex.getMessage());
                 SecurityContextHolder.clearContext();

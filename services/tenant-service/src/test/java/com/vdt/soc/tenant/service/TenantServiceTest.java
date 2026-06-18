@@ -1,13 +1,13 @@
 package com.vdt.soc.tenant.service;
 
+import com.vdt.soc.common.model.enumeration.TenantStatus;
+import com.vdt.soc.common.model.enumeration.UserRole;
 import com.vdt.soc.tenant.dto.CreateTenantRequest;
 import com.vdt.soc.tenant.dto.CreateTenantResponse;
 import com.vdt.soc.tenant.dto.UpdateTenantRequest;
 import com.vdt.soc.tenant.entity.Tenant;
 import com.vdt.soc.tenant.entity.TenantApiKey;
 import com.vdt.soc.tenant.entity.User;
-import com.vdt.soc.common.model.enumeration.TenantStatus;
-import com.vdt.soc.common.model.enumeration.UserRole;
 import com.vdt.soc.tenant.exception.DuplicateResourceException;
 import com.vdt.soc.tenant.exception.ResourceNotFoundException;
 import com.vdt.soc.tenant.repository.TenantApiKeyRepository;
@@ -36,13 +36,19 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class TenantServiceTest {
 
-    @Mock private TenantRepository tenantRepository;
-    @Mock private UserRepository userRepository;
-    @Mock private TenantApiKeyRepository apiKeyRepository;
-    @Mock private PasswordEncoder passwordEncoder;
-    @Mock private ApiKeyGenerator apiKeyGenerator;
+    @Mock
+    private TenantRepository tenantRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private TenantApiKeyRepository apiKeyRepository;
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    @Mock
+    private ApiKeyGenerator apiKeyGenerator;
 
-    @InjectMocks private TenantService tenantService;
+    @InjectMocks
+    private TenantService tenantService;
 
     private CreateTenantRequest createRequest;
 

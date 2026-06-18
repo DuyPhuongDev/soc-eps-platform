@@ -2,7 +2,7 @@ server:
   port: 8082
 spring:
   application:
-    name: tenant
+    name: tenant-service
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5434}/${DB_NAME:eps_db}
     driver-class-name: org.postgresql.Driver
@@ -43,4 +43,11 @@ app:
   api-key:
     prefix: "eps_"
     random-bytes: 32
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+  instance:
+    prefer-ip-address: true
 

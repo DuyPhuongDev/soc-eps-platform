@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * In-memory cache of active license policies.
  * Keyed by tenantId for O(1) lookup during event enforcement.
- *
+ * <p>
  * Thread-safe: uses ConcurrentHashMap — no lock contention on read path.
  * Refresh replaces the entire map atomically via replaceAll().
  */

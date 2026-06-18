@@ -11,17 +11,17 @@ import java.util.UUID;
 
 /**
  * Real-time EPS (Events Per Second) metering using Redis Sorted Sets.
- *
+ * <p>
  * Design:
  * - Two windows per tenant: 1-minute and 1-day
  * - Each event is recorded via ZADD with score = timestamp_ms
  * - Old entries are trimmed via ZREMRANGEBYSCORE
  * - Keys auto-expire to prevent memory leak
- *
+ * <p>
  * Key patterns:
- *   eps:1m:{tenantId}  → ZSET, TTL 120s
- *   eps:1d:{tenantId}  → ZSET, TTL 172800s (2 days)
- *
+ * eps:1m:{tenantId}  → ZSET, TTL 120s
+ * eps:1d:{tenantId}  → ZSET, TTL 172800s (2 days)
+ * <p>
  * Metering is fire-and-forget: event recording errors must not block
  * the response — they are logged and swallowed.
  */
@@ -41,7 +41,7 @@ public class EpsMeter {
 
     /**
      * Record an event for the given tenant in both time windows.
-     *
+     * <p>
      * Fire-and-forget: errors are logged but never propagated.
      *
      * @param tenantId tenant that produced the event

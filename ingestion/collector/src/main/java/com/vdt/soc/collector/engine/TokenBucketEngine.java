@@ -7,7 +7,7 @@ import java.util.UUID;
 
 /**
  * Interface for the token bucket rate limiter.
- *
+ * <p>
  * Implementations must be thread-safe and atomic
  * (Redis Lua script is the production implementation).
  */
@@ -19,7 +19,7 @@ public interface TokenBucketEngine {
      * @param tenantId tenant identifier
      * @param policy   the tenant's current policy (epsQuota, mode, burstMultiplier)
      * @return Mono.of(true) if token consumed (within quota),
-     *         Mono.of(false) if throttled (bucket empty)
+     * Mono.of(false) if throttled (bucket empty)
      */
     Mono<Boolean> tryConsume(UUID tenantId, PolicyDTO policy);
 }

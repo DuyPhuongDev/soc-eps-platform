@@ -14,10 +14,10 @@ import java.util.List;
 
 /**
  * Periodically refreshes in-memory API key cache from tenant-service.
- *
+ * <p>
  * Policy cache is now populated via etcd watch (see EtcdPolicyWatcher),
  * so this class only refreshes API key mappings.
- *
+ * <p>
  * Runs on a scheduler thread (not Netty event loop), so blocking
  * WebClient.subscribe() in @Scheduled is safe.
  */
@@ -26,14 +26,14 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CacheRefresher {
 
+    private static final ParameterizedTypeReference<List<TenantApiKeyMapping>> API_KEYS_TYPE =
+            new ParameterizedTypeReference<>() {
+            };
     private final ApiKeyCache apiKeyCache;
     private final SnapshotManager snapshotManager;
     private final InternalApiProperties internalApi;
     private final CacheProperties cacheProperties;
     private final WebClient.Builder webClientBuilder;
-
-    private static final ParameterizedTypeReference<List<TenantApiKeyMapping>> API_KEYS_TYPE =
-            new ParameterizedTypeReference<>() {};
 
     @Scheduled(fixedDelayString = "${app.cache.refresh-interval-seconds:30}000")
     public void refreshAll() {

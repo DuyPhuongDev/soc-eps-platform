@@ -59,6 +59,13 @@ app:
     policy-snapshot-file: policies.json
     api-key-snapshot-file: api-keys.json
 
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8086/eureka
+  instance:
+    prefer-ip-address: true
+
 logging:
   level:
     com.vdt.soc.collector: DEBUG

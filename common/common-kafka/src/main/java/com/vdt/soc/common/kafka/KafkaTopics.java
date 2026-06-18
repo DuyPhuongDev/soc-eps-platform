@@ -5,19 +5,18 @@ package com.vdt.soc.common.kafka;
  */
 public final class KafkaTopics {
 
-    private KafkaTopics() {
-        // Utility class
-    }
-
     /**
      * Topic prefix for event ingestion. Per-tenant topics: events.{tenantId}
      */
     public static final String EVENT_PREFIX = "events.";
-
     /**
      * Topic for usage alert events from metric-aggregator.
      */
     public static final String USAGE_ALERTS = "usage-alerts";
+
+    private KafkaTopics() {
+        // Utility class
+    }
 
     /**
      * Build per-tenant event topic name.

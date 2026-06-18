@@ -4,11 +4,11 @@ import com.vdt.soc.collector.cache.ApiKeyCache;
 import com.vdt.soc.collector.cache.PolicyCache;
 import com.vdt.soc.collector.dto.EventRequest;
 import com.vdt.soc.collector.dto.EventResponse;
-import com.vdt.soc.common.core.util.HashUtil;
-import com.vdt.soc.common.model.dto.PolicyDTO;
 import com.vdt.soc.collector.exception.ThrottledException;
 import com.vdt.soc.collector.exception.UnauthorizedException;
 import com.vdt.soc.collector.forward.KafkaEventForwarder;
+import com.vdt.soc.common.core.util.HashUtil;
+import com.vdt.soc.common.model.dto.PolicyDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,14 +18,14 @@ import java.util.UUID;
 
 /**
  * Core enforcement engine — orchestrates the event processing pipeline:
- *
+ * <p>
  * 1. Auth — resolve API key hash → tenantId (via ApiKeyCache)
  * 2. Policy — look up tenant's license policy (via PolicyCache)
  * 3. Rate Limit — try to consume a token (via TokenBucketEngine)
  * 4. Meter — record event for EPS tracking (via EpsMeter)
  * 5. Forward — publish to Kafka (via KafkaEventForwarder)
  * 6. Response — return 202 or error
- *
+ * <p>
  * Every step returns Mono (non-blocking). The entire chain is composed
  * reactively — no thread is ever blocked.
  */
@@ -43,8 +43,8 @@ public class EnforcementEngine {
     /**
      * Process an event through the enforcement pipeline.
      *
-     * @param event      the inbound event payload
-     * @param rawApiKey  the plaintext API key from X-API-Key header
+     * @param event     the inbound event payload
+     * @param rawApiKey the plaintext API key from X-API-Key header
      * @return Mono<EventResponse> on success, Mono.error on failure
      */
     public Mono<EventResponse> process(EventRequest event, String rawApiKey) {

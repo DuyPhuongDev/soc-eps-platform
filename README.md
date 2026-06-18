@@ -1,6 +1,8 @@
 # SOC EPS Platform
 
-A production-ready, multi-tenant license enforcement platform with clear **Control Plane / Data Plane** separation. Manages tenant onboarding, license lifecycle, real-time event ingestion with enforcement (token bucket + EPS metering), and usage metrics aggregation.
+A production-ready, multi-tenant license enforcement platform with clear **Control Plane / Data Plane** separation.
+Manages tenant onboarding, license lifecycle, real-time event ingestion with enforcement (token bucket + EPS metering),
+and usage metrics aggregation.
 
 ## Architecture
 
@@ -8,30 +10,35 @@ A production-ready, multi-tenant license enforcement platform with clear **Contr
 
 ### Key Design Decisions
 
-- **Control Plane / Data Plane separation** — services that manage state (tenant, license) are isolated from the ingestion hot path (collector). The collector has zero dependency on PostgreSQL or JPA.
-- **etcd for policy distribution** — license changes are published to etcd and pushed to the collector via watch, eliminating HTTP polling between services in the hot path.
-- **Kafka for usage events** — collector forwards validated events to Kafka; the metric aggregator consumes them asynchronously for aggregation into TimescaleDB.
-- **Auth stays in tenant-service** — no separate auth microservice. User management and authentication are co-located with tenant management since they share the same bounded context.
-- **No shared entities** — services own their database schemas and Flyway migrations. Only DTOs and enums are shared via `common-model`.
+- **Control Plane / Data Plane separation** — services that manage state (tenant, license) are isolated from the
+  ingestion hot path (collector). The collector has zero dependency on PostgreSQL or JPA.
+- **etcd for policy distribution** — license changes are published to etcd and pushed to the collector via watch,
+  eliminating HTTP polling between services in the hot path.
+- **Kafka for usage events** — collector forwards validated events to Kafka; the metric aggregator consumes them
+  asynchronously for aggregation into TimescaleDB.
+- **Auth stays in tenant-service** — no separate auth microservice. User management and authentication are co-located
+  with tenant management since they share the same bounded context.
+- **No shared entities** — services own their database schemas and Flyway migrations. Only DTOs and enums are shared via
+  `common-model`.
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Runtime | Java 21 |
-| Framework | Spring Boot 3.5.0 |
-| Build | Maven (multi-module) |
-| Database (Control Plane) | PostgreSQL 17 |
-| Database (Metrics) | TimescaleDB (PostgreSQL extension) |
-| Cache & Rate Limiting | Redis 7 |
-| Messaging | Apache Kafka 7.7.0 (KRaft mode) |
-| Policy Distribution | etcd 3.5 |
-| Collector Stack | Spring WebFlux (reactive) |
-| Control Plane Stack | Spring Web MVC + Spring Data JPA |
-| Migration | Flyway |
-| API Documentation | springdoc-openapi 2.8.9 |
-| Authentication | JWT (jjwt 0.12.6) |
-| Containerization | Docker Compose (dev), K8s/Helm (prod) |
+| Layer                    | Technology                            |
+|--------------------------|---------------------------------------|
+| Runtime                  | Java 21                               |
+| Framework                | Spring Boot 3.5.0                     |
+| Build                    | Maven (multi-module)                  |
+| Database (Control Plane) | PostgreSQL 17                         |
+| Database (Metrics)       | TimescaleDB (PostgreSQL extension)    |
+| Cache & Rate Limiting    | Redis 7                               |
+| Messaging                | Apache Kafka 7.7.0 (KRaft mode)       |
+| Policy Distribution      | etcd 3.5                              |
+| Collector Stack          | Spring WebFlux (reactive)             |
+| Control Plane Stack      | Spring Web MVC + Spring Data JPA      |
+| Migration                | Flyway                                |
+| API Documentation        | springdoc-openapi 2.8.9               |
+| Authentication           | JWT (jjwt 0.12.6)                     |
+| Containerization         | Docker Compose (dev), K8s/Helm (prod) |
 
 ## Project Structure
 
@@ -75,12 +82,12 @@ eps-license-platform/
 docker compose up -d
 ```
 
-| Service | Port | Notes |
-|---------|------|-------|
-| PostgreSQL | 5434 | Database: `eps_db`, User: `eps_user` |
-| Redis | 6379 | No password (dev) |
-| Kafka | 9092 | KRaft mode, auto-create topics enabled |
-| etcd | 2379 | Policy distribution |
+| Service    | Port | Notes                                  |
+|------------|------|----------------------------------------|
+| PostgreSQL | 5434 | Database: `eps_db`, User: `eps_user`   |
+| Redis      | 6379 | No password (dev)                      |
+| Kafka      | 9092 | KRaft mode, auto-create topics enabled |
+| etcd       | 2379 | Policy distribution                    |
 
 ## Quick Start
 
@@ -106,6 +113,7 @@ docker compose up -d
 ```
 
 Each service can also be built and run independently:
+
 ```bash
 ./mvnw clean install -pl services/tenant-service -am
 cd services/tenant-service && ./mvnw spring-boot:run
@@ -113,70 +121,76 @@ cd services/tenant-service && ./mvnw spring-boot:run
 
 ## Services
 
-| Service | Port | Type | Stack | Database |
-|---------|------|------|-------|----------|
-| **tenant-service** | 8082 | Control Plane | Spring MVC + JPA | PostgreSQL |
-| **license-service** | 8083 | Control Plane | Spring MVC + JPA | PostgreSQL |
-| **collector-service** | 8081 | Data Plane | Spring WebFlux (reactive) | None (Redis + etcd only) |
-| **dashboard-service** | 8084 | Control Plane | Spring MVC + JPA | PostgreSQL (read) |
-| **metric-aggregator** | 8085 | Data Plane | Spring MVC + JPA + Kafka | TimescaleDB |
+| Service               | Port | Type          | Stack                     | Database                 |
+|-----------------------|------|---------------|---------------------------|--------------------------|
+| **tenant-service**    | 8082 | Control Plane | Spring MVC + JPA          | PostgreSQL               |
+| **license-service**   | 8083 | Control Plane | Spring MVC + JPA          | PostgreSQL               |
+| **collector-service** | 8081 | Data Plane    | Spring WebFlux (reactive) | None (Redis + etcd only) |
+| **dashboard-service** | 8084 | Control Plane | Spring MVC + JPA          | PostgreSQL (read)        |
+| **metric-aggregator** | 8085 | Data Plane    | Spring MVC + JPA + Kafka  | TimescaleDB              |
 
 ### API Endpoints
 
-All endpoints are prefixed with `/api/v1/`. Full API documentation is available via Swagger UI when each service is running:
+All endpoints are prefixed with `/api/v1/`. Full API documentation is available via Swagger UI when each service is
+running:
 
-| Service | Swagger UI |
-|---------|-----------|
-| tenant-service | http://localhost:8082/swagger-ui.html |
-| license-service | http://localhost:8083/swagger-ui.html |
+| Service           | Swagger UI                            |
+|-------------------|---------------------------------------|
+| tenant-service    | http://localhost:8082/swagger-ui.html |
+| license-service   | http://localhost:8083/swagger-ui.html |
 | collector-service | http://localhost:8081/swagger-ui.html |
 
 #### Tenant Service (`tenant-service`)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/auth/login` | Authenticate user, get JWT |
-| POST | `/api/v1/tenants` | Create tenant |
-| GET | `/api/v1/tenants` | List all tenants |
-| GET | `/api/v1/tenants/{id}` | Get tenant by ID |
-| PUT | `/api/v1/tenants/{id}` | Update tenant |
-| DELETE | `/api/v1/tenants/{id}` | Delete tenant |
-| GET | `/api/v1/internal/api-keys` | Internal: API key cache sync (collector) |
+| Method | Endpoint                    | Description                              |
+|--------|-----------------------------|------------------------------------------|
+| POST   | `/api/v1/auth/login`        | Authenticate user, get JWT               |
+| POST   | `/api/v1/tenants`           | Create tenant                            |
+| GET    | `/api/v1/tenants`           | List all tenants                         |
+| GET    | `/api/v1/tenants/{id}`      | Get tenant by ID                         |
+| PUT    | `/api/v1/tenants/{id}`      | Update tenant                            |
+| DELETE | `/api/v1/tenants/{id}`      | Delete tenant                            |
+| GET    | `/api/v1/internal/api-keys` | Internal: API key cache sync (collector) |
 
 #### License Service (`license-service`)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/licenses` | Create license |
-| GET | `/api/v1/licenses` | List all licenses |
-| GET | `/api/v1/licenses/{id}` | Get license by ID |
-| PUT | `/api/v1/licenses/{id}` | Update license |
-| DELETE | `/api/v1/licenses/{id}` | Revoke license |
-| GET | `/api/v1/licenses/{id}/audit-logs` | Get license audit trail |
+| Method | Endpoint                           | Description             |
+|--------|------------------------------------|-------------------------|
+| POST   | `/api/v1/licenses`                 | Create license          |
+| GET    | `/api/v1/licenses`                 | List all licenses       |
+| GET    | `/api/v1/licenses/{id}`            | Get license by ID       |
+| PUT    | `/api/v1/licenses/{id}`            | Update license          |
+| DELETE | `/api/v1/licenses/{id}`            | Revoke license          |
+| GET    | `/api/v1/licenses/{id}/audit-logs` | Get license audit trail |
 
 #### Collector Service (`collector-service`)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| POST | `/api/v1/events` | Ingest usage event (API key auth) |
+| Method | Endpoint         | Description                       |
+|--------|------------------|-----------------------------------|
+| POST   | `/api/v1/events` | Ingest usage event (API key auth) |
 
 ## Data Flow
 
 ### Policy Distribution (etcd Watch)
+
 ```
 license-service ──[CRUD]──► etcd ──[watch]──► collector-service (PolicyCache)
 ```
+
 No HTTP polling between services. License changes propagate near-real-time via etcd watch.
 
 ### Usage Event Flow (Kafka)
+
 ```
 client ──[POST /api/v1/events]──► collector ──[validate + enforce]──► Kafka ──► metric-aggregator ──► TimescaleDB
 ```
 
 ### API Key Refresh (HTTP, periodic)
+
 ```
 collector-service ──[GET /internal/api-keys, every 30s]──► tenant-service
 ```
+
 API key distribution remains HTTP-based since keys change infrequently.
 
 ## Development
@@ -207,11 +221,11 @@ API key distribution remains HTTP-based since keys change infrequently.
 
 ### Dependency Rules
 
-| Module | May depend on | Must NOT depend on |
-|--------|--------------|-------------------|
-| `common-core` | Nothing (pure Java) | Spring Boot, JPA, Redis, Kafka, etcd |
-| `common-model` | `common-core` | Spring Boot, JPA |
-| `common-security` | `common-core`, `common-model` | JPA, Redis, Kafka |
+| Module              | May depend on                                                                | Must NOT depend on                      |
+|---------------------|------------------------------------------------------------------------------|-----------------------------------------|
+| `common-core`       | Nothing (pure Java)                                                          | Spring Boot, JPA, Redis, Kafka, etcd    |
+| `common-model`      | `common-core`                                                                | Spring Boot, JPA                        |
+| `common-security`   | `common-core`, `common-model`                                                | JPA, Redis, Kafka                       |
 | `collector-service` | `common-core`, `common-model`, `common-redis`, `common-kafka`, `common-etcd` | **JPA, PostgreSQL, any service module** |
 
 See [SPEC-architecture.md](docs/SPEC-architecture.md) for the complete dependency matrix.
@@ -226,6 +240,7 @@ See [SPEC-architecture.md](docs/SPEC-architecture.md) for the complete dependenc
 ## Boundaries
 
 ### Always
+
 - `./mvnw test` passes before committing
 - `common-*` modules stay free from service-module dependencies
 - Each service owns its database schema and Flyway migrations
@@ -235,6 +250,7 @@ See [SPEC-architecture.md](docs/SPEC-architecture.md) for the complete dependenc
 - Use `@Transactional(readOnly = true)` for query methods
 
 ### Never
+
 - Add JPA/PostgreSQL dependency to `collector-service`
 - Make `collector-service` depend on `license-service` or `tenant-service` JARs
 - Share entity classes across services

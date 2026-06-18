@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponse> build(HttpStatus status, String message,
-                                                 ServerWebExchange exchange, Map<String, String> fieldErrors) {
+                                                ServerWebExchange exchange, Map<String, String> fieldErrors) {
         String path = exchange != null && exchange.getRequest() != null
                 ? exchange.getRequest().getURI().getPath()
                 : "/unknown";

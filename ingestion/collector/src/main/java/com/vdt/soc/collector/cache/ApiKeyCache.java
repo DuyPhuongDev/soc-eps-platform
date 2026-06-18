@@ -8,22 +8,23 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * In-memory cache of API key hash → tenantId mappings.
- *
+ * <p>
  * The hash is SHA-256 hex of the raw API key. This way the cache
  * never stores plaintext keys, and lookups are fast O(1) via ConcurrentHashMap.
- *
+ * <p>
  * Thread-safe: uses ConcurrentHashMap — no lock contention on read path.
  */
 @Slf4j
 @Component
 public class ApiKeyCache {
 
-    /** key = sha256(apiKey), value = tenantId */
+    /**
+     * key = sha256(apiKey), value = tenantId
+     */
     private final Map<String, UUID> cache = new ConcurrentHashMap<>();
 
     /**

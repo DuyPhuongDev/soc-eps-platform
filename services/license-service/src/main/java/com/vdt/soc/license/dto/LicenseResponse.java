@@ -1,10 +1,10 @@
 package com.vdt.soc.license.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.vdt.soc.license.entity.License;
 import com.vdt.soc.common.model.enumeration.LicenseMode;
 import com.vdt.soc.common.model.enumeration.LicensePlan;
 import com.vdt.soc.common.model.enumeration.LicenseStatus;
+import com.vdt.soc.license.entity.License;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

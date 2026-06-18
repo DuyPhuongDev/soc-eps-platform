@@ -15,10 +15,10 @@ import java.util.UUID;
 
 /**
  * Forwards accepted events to Kafka for downstream aggregate-service consumption.
- *
+ * <p>
  * Topic pattern: events.{tenantId}
  * Partition key: tenantId.toString() (ensures per-tenant ordering)
- *
+ * <p>
  * Errors are propagated to caller (EnforcementEngine) — if Kafka is down,
  * the engine returns HTTP 503.
  */
@@ -38,7 +38,7 @@ public class KafkaEventForwarder {
      * @param event    the validated event
      * @param tenantId tenant identifier (used for topic and partition key)
      * @return Mono<Void> that completes when Kafka acknowledges,
-     *         or errors if Kafka is unreachable
+     * or errors if Kafka is unreachable
      */
     public Mono<Void> send(EventRequest event, UUID tenantId) {
         String topic = TOPIC_PREFIX + tenantId;

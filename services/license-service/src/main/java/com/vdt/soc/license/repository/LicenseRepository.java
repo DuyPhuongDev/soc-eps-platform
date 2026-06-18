@@ -1,7 +1,7 @@
 package com.vdt.soc.license.repository;
 
-import com.vdt.soc.license.entity.License;
 import com.vdt.soc.common.model.enumeration.LicenseStatus;
+import com.vdt.soc.license.entity.License;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

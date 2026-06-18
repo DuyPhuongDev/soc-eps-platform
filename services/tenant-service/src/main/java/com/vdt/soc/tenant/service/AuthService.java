@@ -1,12 +1,12 @@
 package com.vdt.soc.tenant.service;
 
+import com.vdt.soc.common.model.enumeration.UserStatus;
+import com.vdt.soc.common.security.JwtProperties;
 import com.vdt.soc.tenant.dto.LoginRequest;
 import com.vdt.soc.tenant.dto.LoginResponse;
 import com.vdt.soc.tenant.entity.User;
-import com.vdt.soc.common.model.enumeration.UserStatus;
 import com.vdt.soc.tenant.exception.UnauthorizedException;
 import com.vdt.soc.tenant.repository.UserRepository;
-import com.vdt.soc.common.security.JwtProperties;
 import com.vdt.soc.tenant.security.TenantJwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;

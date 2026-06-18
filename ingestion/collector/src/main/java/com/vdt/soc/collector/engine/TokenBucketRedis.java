@@ -12,11 +12,11 @@ import java.util.UUID;
 
 /**
  * Token Bucket implementation using Redis Lua script for atomicity.
- *
+ * <p>
  * Bucket key:  "bucket:{tenantId}"
  * Capacity:    epsQuota * burstMultiplier
  * Refill rate: epsQuota tokens/sec
- *
+ * <p>
  * The Lua script reads current tokens, refills based on elapsed time,
  * attempts to consume, and persists the updated state — all in one
  * atomic Redis operation. No race conditions across collector instances.

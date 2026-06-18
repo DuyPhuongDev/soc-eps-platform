@@ -25,13 +25,6 @@ import java.util.UUID;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PolicyDTO {
 
-    private UUID tenantId;
-    private LicensePlan plan;
-    private Integer epsQuota;
-    private LicenseMode mode;
-    private Double burstMultiplier;
-    private Instant validUntil;
-
     /**
      * Default policy for unknown tenants — throttle everything.
      */
@@ -43,6 +36,12 @@ public class PolicyDTO {
             .burstMultiplier(1.0)
             .validUntil(null)
             .build();
+    private UUID tenantId;
+    private LicensePlan plan;
+    private Integer epsQuota;
+    private LicenseMode mode;
+    private Double burstMultiplier;
+    private Instant validUntil;
 
     public boolean isDefault() {
         return epsQuota == 0;

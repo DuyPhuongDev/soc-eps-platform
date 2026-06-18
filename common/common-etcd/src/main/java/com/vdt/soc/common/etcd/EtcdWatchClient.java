@@ -26,10 +26,9 @@ import java.util.function.Consumer;
 @RequiredArgsConstructor
 public class EtcdWatchClient {
 
+    private static final ByteSequence EMPTY_PREFIX = ByteSequence.from("", StandardCharsets.UTF_8);
     private final Client etcdClient;
     private final EtcdProperties properties;
-
-    private static final ByteSequence EMPTY_PREFIX = ByteSequence.from("", StandardCharsets.UTF_8);
 
     /**
      * Get all key-value pairs under the policy prefix.
@@ -91,5 +90,6 @@ public class EtcdWatchClient {
     /**
      * Simple key-value pair record.
      */
-    public record KeyValue(String key, String value) {}
+    public record KeyValue(String key, String value) {
+    }
 }

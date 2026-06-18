@@ -33,7 +33,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(AbstractHttpConfigurer::disable)
@@ -48,13 +48,18 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
                         .requestMatchers("/api/v1/internal/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/v1/tenants").hasRole("SYSTEM_ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/v1/tenants/**").hasRole("SYSTEM_ADMIN")
+//                        .requestMatchers(HttpMethod.POST, "/api/v1/tenants").hasRole("SYSTEM_ADMIN")
+//                        .requestMatchers(HttpMethod.DELETE, "/api/v1/tenants/**").hasRole("SYSTEM_ADMIN")
                         .requestMatchers("/api/v1/tenants/**").authenticated()
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpStatus.FORBIDDEN.value());
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\": \"Access Denied: You do not have permission!\"}");
+                        }))
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

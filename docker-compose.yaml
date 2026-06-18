@@ -56,6 +56,39 @@ services:
       timeout: 10s
       retries: 5
 
+  eureka-server:
+    build:
+      context: .
+      dockerfile: deployment/docker/Dockerfile.eureka-server
+    container_name: eps-eureka
+    ports:
+      - "8086:8086"
+    networks:
+      - eps-network
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:8086/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api-gateway:
+    build:
+      context: .
+      dockerfile: deployment/docker/Dockerfile.api-gateway
+    container_name: eps-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    networks:
+      - eps-network
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:8080/actuator/health" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
 networks:
   eps-network:
     driver: bridge

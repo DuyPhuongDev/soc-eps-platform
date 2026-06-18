@@ -35,3 +35,6 @@ build/
 .cursor/
 docs/
 tools/
+
+### MacOS ###
+.DS_Store
