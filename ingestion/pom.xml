@@ -8,17 +8,12 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>common</artifactId>
+    <artifactId>ingestion</artifactId>
     <packaging>pom</packaging>
-    <name>Common Libraries</name>
-    <description>Aggregator POM for shared common modules</description>
+    <name>Ingestion</name>
+    <description>Data Plane services aggregator</description>
 
     <modules>
-        <module>common-core</module>
-        <module>common-model</module>
-        <module>common-security</module>
-        <module>common-kafka</module>
-        <module>common-redis</module>
-        <module>common-etcd</module>
+        <module>collector</module>
     </modules>
 </project>

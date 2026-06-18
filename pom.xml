@@ -40,16 +40,15 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <jetcd.version>0.7.7</jetcd.version>
     </properties>
 
     <modules>
         <module>common</module>
-        <module>license</module>
-        <module>collector</module>
-        <!--		<module>metric-aggregator</module>-->
-        <!--		<module>dashboard-api</module>-->
-        <module>tenant</module>
+        <module>services</module>
+        <module>ingestion</module>
     </modules>
+
     <dependencies>
 
     </dependencies>

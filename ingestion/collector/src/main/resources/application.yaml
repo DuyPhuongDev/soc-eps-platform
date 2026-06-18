@@ -1,0 +1,66 @@
+server:
+  port: ${COLLECTOR_PORT:8081}
+
+spring:
+  application:
+    name: collector
+  main:
+    web-application-type: reactive
+
+  # Reactive Redis
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 4
+          max-wait: 1000ms
+        shutdown-timeout: 100ms
+
+  # Kafka
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: 1
+      compression-type: lz4
+      linger-ms: 5
+      batch-size: 16384
+      retries: 0
+      max-in-flight-requests-per-connection: 5
+    admin:
+      auto-create: true
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# ── Collector app properties ──
+app:
+  # Internal API (license-service and tenant-service)
+  internal-api:
+    license-service-url: ${LICENSE_SERVICE_URL:http://localhost:8083}
+    tenant-service-url: ${TENANT_SERVICE_URL:http://localhost:8082}
+    internal-secret: ${INTERNAL_SECRET:change-me-please}
+    connect-timeout-ms: 3000
+    read-timeout-ms: 5000
+
+  # Cache refresh
+  cache:
+    refresh-interval-seconds: ${CACHE_REFRESH_INTERVAL:30}
+    snapshot-dir: ${CACHE_SNAPSHOT_DIR:config/snapshots}
+    policy-snapshot-file: policies.json
+    api-key-snapshot-file: api-keys.json
+
+logging:
+  level:
+    com.vdt.soc.collector: DEBUG
+    com.vdt.soc.collector.engine.EnforcementEngine: DEBUG
+    io.netty: WARN

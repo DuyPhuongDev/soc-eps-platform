@@ -8,17 +8,13 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>common</artifactId>
+    <artifactId>services</artifactId>
     <packaging>pom</packaging>
-    <name>Common Libraries</name>
-    <description>Aggregator POM for shared common modules</description>
+    <name>Services</name>
+    <description>Control Plane services aggregator</description>
 
     <modules>
-        <module>common-core</module>
-        <module>common-model</module>
-        <module>common-security</module>
-        <module>common-kafka</module>
-        <module>common-redis</module>
-        <module>common-etcd</module>
+        <module>tenant-service</module>
+        <module>license-service</module>
     </modules>
 </project>

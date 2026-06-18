@@ -33,3 +33,5 @@ build/
 .vscode/
 .claude/
 .cursor/
+docs/
+tools/
