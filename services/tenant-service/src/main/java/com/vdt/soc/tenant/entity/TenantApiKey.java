@@ -1,6 +1,6 @@
 package com.vdt.soc.tenant.entity;
 
-import com.vdt.soc.common.model.enumeration.ApiKeyStatus;
+import com.vdt.soc.common.core.enumeration.ApiKeyStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

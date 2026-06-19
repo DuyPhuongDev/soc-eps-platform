@@ -1,6 +1,6 @@
 package com.vdt.soc.tenant.service;
 
-import com.vdt.soc.common.model.enumeration.UserStatus;
+import com.vdt.soc.common.core.enumeration.UserStatus;
 import com.vdt.soc.common.security.JwtProperties;
 import com.vdt.soc.tenant.dto.LoginRequest;
 import com.vdt.soc.tenant.dto.LoginResponse;

@@ -1,7 +1,7 @@
 package com.vdt.soc.tenant.service;
 
-import com.vdt.soc.common.model.enumeration.TenantStatus;
-import com.vdt.soc.common.model.enumeration.UserRole;
+import com.vdt.soc.common.core.enumeration.TenantStatus;
+import com.vdt.soc.common.core.enumeration.UserRole;
 import com.vdt.soc.tenant.dto.CreateTenantRequest;
 import com.vdt.soc.tenant.dto.CreateTenantResponse;
 import com.vdt.soc.tenant.dto.UpdateTenantRequest;

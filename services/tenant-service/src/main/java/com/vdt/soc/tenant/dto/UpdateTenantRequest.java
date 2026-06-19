@@ -1,6 +1,6 @@
 package com.vdt.soc.tenant.dto;
 
-import com.vdt.soc.common.model.enumeration.TenantStatus;
+import com.vdt.soc.common.core.enumeration.TenantStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;

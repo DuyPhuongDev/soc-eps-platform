@@ -1,7 +1,7 @@
 package com.vdt.soc.tenant.entity;
 
-import com.vdt.soc.common.model.enumeration.UserRole;
-import com.vdt.soc.common.model.enumeration.UserStatus;
+import com.vdt.soc.common.core.enumeration.UserRole;
+import com.vdt.soc.common.core.enumeration.UserStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

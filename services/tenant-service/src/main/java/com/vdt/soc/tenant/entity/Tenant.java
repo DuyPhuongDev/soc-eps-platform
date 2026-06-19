@@ -1,6 +1,6 @@
 package com.vdt.soc.tenant.entity;
 
-import com.vdt.soc.common.model.enumeration.TenantStatus;
+import com.vdt.soc.common.core.enumeration.TenantStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
