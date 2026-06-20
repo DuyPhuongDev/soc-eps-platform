@@ -1,4 +1,4 @@
-package com.vdt.soc.common.model.dto;
+package com.vdt.soc.common.core.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

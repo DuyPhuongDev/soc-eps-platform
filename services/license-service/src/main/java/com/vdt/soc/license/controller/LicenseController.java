@@ -1,10 +1,11 @@
 package com.vdt.soc.license.controller;
 
-import com.vdt.soc.common.model.dto.PolicyDTO;
-import com.vdt.soc.common.security.JwtAuthentication;
+import com.vdt.soc.common.core.dto.PolicyDTO;
+import com.vdt.soc.common.security.JwtPrincipal;
 import com.vdt.soc.license.dto.CreateLicenseRequest;
 import com.vdt.soc.license.dto.LicenseAuditLogResponse;
 import com.vdt.soc.license.dto.LicenseResponse;
+import com.vdt.soc.license.dto.PageResponse;
 import com.vdt.soc.license.dto.UpdateLicenseRequest;
 import com.vdt.soc.license.service.LicenseService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,8 +13,12 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,21 +45,31 @@ public class LicenseController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a new license", description = "SYSTEM_ADMIN only. Only one active license per tenant at a time.")
     public LicenseResponse createLicense(@Valid @RequestBody CreateLicenseRequest request,
-                                         @AuthenticationPrincipal JwtAuthentication auth) {
-        return licenseService.createLicense(request, auth.getUsername());
+                                         @AuthenticationPrincipal JwtPrincipal principal) {
+        return licenseService.createLicense(request, principal.username());
     }
 
     @GetMapping
+    @PreAuthorize("hasRole('SYSTEM_ADMIN')")
     @Operation(summary = "List licenses", description = "SYSTEM_ADMIN sees all. TENANT_ADMIN/TENANT_VIEWER see their tenant's licenses.")
-    public ResponseEntity<List<LicenseResponse>> listLicenses(
+    public ResponseEntity<PageResponse<LicenseResponse>> listAllLicense(
             @RequestParam(required = false) @Parameter(description = "Filter by tenant ID") UUID tenantId,
-            @AuthenticationPrincipal JwtAuthentication auth) {
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         if (tenantId != null) {
-            return ResponseEntity.ok(licenseService.listLicenses(tenantId));
+            return ResponseEntity.ok(licenseService.listLicenses(tenantId, pageable));
         }
-        // Only SYSTEM_ADMIN can list all; filtered by role in SecurityConfig
-        return ResponseEntity.ok(licenseService.listAllLicenses());
+        return ResponseEntity.ok(licenseService.listAllLicenses(pageable));
+    }
+
+    @GetMapping("/my-license")
+    @PreAuthorize("hasAnyRole('TENANT_ADMIN', 'TENANT_VIEWER')")
+    @Operation(summary = "List licenses of current tenant")
+    public ResponseEntity<PageResponse<LicenseResponse>> listMyLicenses(
+            @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable,
+            @AuthenticationPrincipal JwtPrincipal principal
+    ) {
+        return ResponseEntity.ok(licenseService.listLicenses(principal.tenantId(), pageable));
     }
 
     @GetMapping("/expiring")
@@ -74,21 +89,15 @@ public class LicenseController {
     @Operation(summary = "Update license", description = "SYSTEM_ADMIN only. Supports partial updates.")
     public ResponseEntity<LicenseResponse> updateLicense(@PathVariable UUID id,
                                                          @Valid @RequestBody UpdateLicenseRequest request,
-                                                         @AuthenticationPrincipal JwtAuthentication auth) {
-        return ResponseEntity.ok(licenseService.updateLicense(id, request, auth.getUsername()));
+                                                         @AuthenticationPrincipal JwtPrincipal principal) {
+        return ResponseEntity.ok(licenseService.updateLicense(id, request, principal.username()));
     }
 
     @PostMapping("/{id}/revoke")
     @Operation(summary = "Revoke a license", description = "SYSTEM_ADMIN only. Sets license status to REVOKED (soft delete).")
     public ResponseEntity<LicenseResponse> revokeLicense(@PathVariable UUID id,
-                                                         @AuthenticationPrincipal JwtAuthentication auth) {
-        return ResponseEntity.ok(licenseService.revokeLicense(id, auth.getUsername()));
-    }
-
-    @GetMapping("/{id}/audit-logs")
-    @Operation(summary = "Get audit logs for a license", description = "SYSTEM_ADMIN only.")
-    public ResponseEntity<List<LicenseAuditLogResponse>> getAuditLogs(@PathVariable UUID id) {
-        return ResponseEntity.ok(licenseService.getAuditLogs(id));
+                                                         @AuthenticationPrincipal JwtPrincipal principal) {
+        return ResponseEntity.ok(licenseService.revokeLicense(id, principal.username()));
     }
 
     // ── Internal API for Collector service ──

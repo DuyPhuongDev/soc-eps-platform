@@ -1,6 +1,7 @@
-package com.vdt.soc.tenant.config;
+package com.vdt.soc.license.config;
 
-import com.vdt.soc.tenant.auditing.AuditorAwareImpl;
+
+import com.vdt.soc.license.auditing.AuditorAwareImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;

@@ -1,4 +1,4 @@
-package com.vdt.soc.license.config.security;
+package com.vdt.soc.license.config;
 
 import com.vdt.soc.common.security.JwtAuthenticationFilter;
 import com.vdt.soc.common.security.JwtProperties;
@@ -18,6 +18,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableConfigurationProperties(JwtProperties.class)
 public class SecurityConfig {
+
+    private static final String SYSTEM_ADMIN = "SYSTEM_ADMIN";
 
     @Bean
     public JwtUtil jwtUtil(JwtProperties properties) {
@@ -47,17 +49,22 @@ public class SecurityConfig {
                         // Internal API (Collector service)
                         .requestMatchers("/api/v1/internal/**", "/api/v1/licenses/internal/**").permitAll()
                         // SYSTEM_ADMIN only: create, update, revoke, expiring, audit-logs
-                        .requestMatchers(HttpMethod.POST, "/api/v1/licenses").hasRole("SYSTEM_ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/v1/licenses/**").hasRole("SYSTEM_ADMIN")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/licenses/*/revoke").hasRole("SYSTEM_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/licenses/expiring").hasRole("SYSTEM_ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/v1/licenses/*/audit-logs").hasRole("SYSTEM_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/licenses").hasRole(SYSTEM_ADMIN)
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/licenses/**").hasRole(SYSTEM_ADMIN)
+                        .requestMatchers(HttpMethod.POST, "/api/v1/licenses/*/revoke").hasRole(SYSTEM_ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/licenses/expiring").hasRole(SYSTEM_ADMIN)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/licenses/*/audit-logs").hasRole(SYSTEM_ADMIN)
 //                         Authenticated: read licenses
                         .requestMatchers(HttpMethod.GET, "/api/v1/licenses/**").authenticated()
                         // Everything else
                         .anyRequest().authenticated())
                 .exceptionHandling(e -> e
-                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpStatus.FORBIDDEN.value());
+                            response.setContentType("application/json");
+                            response.getWriter().write("{\"message\": \"Access Denied: You do not have permission!\"}");
+                        }))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

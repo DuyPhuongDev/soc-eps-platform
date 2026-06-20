@@ -1,6 +1,6 @@
 package com.vdt.soc.license.dto;
 
-import com.vdt.soc.common.model.enumeration.LicenseMode;
+import com.vdt.soc.common.core.enumeration.LicenseMode;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -10,13 +10,17 @@
 
     <artifactId>common-core</artifactId>
     <name>Common Core</name>
-    <description>Pure Java utilities and exceptions — zero Spring dependency</description>
+    <description>Pure Java utilities, DTOs, enums, and exceptions — minimal Spring dependency</description>
 
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -1,4 +1,4 @@
-package com.vdt.soc.common.model.enumeration;
+package com.vdt.soc.common.core.enumeration;
 
 public enum UserRole {
     SYSTEM_ADMIN,

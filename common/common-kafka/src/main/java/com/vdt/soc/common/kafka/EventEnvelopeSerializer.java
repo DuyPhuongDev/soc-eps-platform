@@ -3,7 +3,7 @@ package com.vdt.soc.common.kafka;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.vdt.soc.common.model.dto.EventEnvelope;
+import com.vdt.soc.common.core.dto.EventEnvelope;
 
 /**
  * JSON serializer for EventEnvelope using the common-model schema.

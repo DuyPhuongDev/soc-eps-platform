@@ -1,4 +1,4 @@
-package com.vdt.soc.license.exception;
+package com.vdt.soc.common.core.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +13,6 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ErrorResponse {
-
     private Instant timestamp;
     private int status;
     private String error;

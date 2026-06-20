@@ -1,6 +1,6 @@
 package com.vdt.soc.collector.engine;
 
-import com.vdt.soc.common.model.dto.PolicyDTO;
+import com.vdt.soc.common.core.dto.PolicyDTO;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;

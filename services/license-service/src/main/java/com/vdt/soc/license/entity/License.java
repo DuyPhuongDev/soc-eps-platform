@@ -1,8 +1,8 @@
 package com.vdt.soc.license.entity;
 
-import com.vdt.soc.common.model.enumeration.LicenseMode;
-import com.vdt.soc.common.model.enumeration.LicensePlan;
-import com.vdt.soc.common.model.enumeration.LicenseStatus;
+import com.vdt.soc.common.core.enumeration.LicenseMode;
+import com.vdt.soc.common.core.enumeration.LicensePlan;
+import com.vdt.soc.common.core.enumeration.LicenseStatus;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

@@ -8,7 +8,7 @@ import com.vdt.soc.collector.exception.ThrottledException;
 import com.vdt.soc.collector.exception.UnauthorizedException;
 import com.vdt.soc.collector.forward.KafkaEventForwarder;
 import com.vdt.soc.common.core.util.HashUtil;
-import com.vdt.soc.common.model.dto.PolicyDTO;
+import com.vdt.soc.common.core.dto.PolicyDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

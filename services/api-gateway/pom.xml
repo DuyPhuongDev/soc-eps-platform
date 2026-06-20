@@ -6,6 +6,7 @@
         <groupId>com.vdt.soc</groupId>
         <artifactId>eps-license-platform</artifactId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>api-gateway</artifactId>
