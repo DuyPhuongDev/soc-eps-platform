@@ -1,6 +1,6 @@
 package com.vdt.soc.tenant.dto;
 
-import com.vdt.soc.common.model.enumeration.TenantStatus;
+import com.vdt.soc.common.core.enumeration.TenantStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

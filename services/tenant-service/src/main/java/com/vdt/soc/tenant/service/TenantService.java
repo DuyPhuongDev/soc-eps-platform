@@ -1,9 +1,9 @@
 package com.vdt.soc.tenant.service;
 
-import com.vdt.soc.common.model.dto.TenantApiKeyMapping;
-import com.vdt.soc.common.model.enumeration.ApiKeyStatus;
-import com.vdt.soc.common.model.enumeration.UserRole;
-import com.vdt.soc.common.model.enumeration.UserStatus;
+import com.vdt.soc.common.core.dto.TenantApiKeyMapping;
+import com.vdt.soc.common.core.enumeration.ApiKeyStatus;
+import com.vdt.soc.common.core.enumeration.UserRole;
+import com.vdt.soc.common.core.enumeration.UserStatus;
 import com.vdt.soc.tenant.dto.CreateTenantRequest;
 import com.vdt.soc.tenant.dto.CreateTenantResponse;
 import com.vdt.soc.tenant.dto.TenantResponse;

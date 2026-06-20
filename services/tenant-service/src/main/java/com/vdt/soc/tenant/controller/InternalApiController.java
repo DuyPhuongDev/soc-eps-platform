@@ -1,6 +1,6 @@
 package com.vdt.soc.tenant.controller;
 
-import com.vdt.soc.common.model.dto.TenantApiKeyMapping;
+import com.vdt.soc.common.core.dto.TenantApiKeyMapping;
 import com.vdt.soc.tenant.exception.UnauthorizedException;
 import com.vdt.soc.tenant.properties.InternalApiProperties;
 import com.vdt.soc.tenant.service.TenantService;

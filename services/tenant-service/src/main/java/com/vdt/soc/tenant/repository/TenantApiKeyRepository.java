@@ -1,6 +1,6 @@
 package com.vdt.soc.tenant.repository;
 
-import com.vdt.soc.common.model.enumeration.ApiKeyStatus;
+import com.vdt.soc.common.core.enumeration.ApiKeyStatus;
 import com.vdt.soc.tenant.entity.TenantApiKey;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
