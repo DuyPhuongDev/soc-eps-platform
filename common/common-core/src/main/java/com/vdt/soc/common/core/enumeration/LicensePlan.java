@@ -1,4 +1,4 @@
-package com.vdt.soc.common.model.enumeration;
+package com.vdt.soc.common.core.enumeration;
 
 import lombok.Getter;
 

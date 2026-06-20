@@ -1,176 +1,148 @@
 package com.vdt.soc.license.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vdt.soc.common.model.dto.PolicyDTO;
-import com.vdt.soc.common.model.enumeration.LicensePlan;
-import com.vdt.soc.common.model.enumeration.LicenseStatus;
+import com.vdt.soc.common.core.dto.PolicyDTO;
+import com.vdt.soc.common.core.enumeration.LicenseStatus;
 import com.vdt.soc.license.dto.CreateLicenseRequest;
 import com.vdt.soc.license.dto.LicenseAuditLogResponse;
 import com.vdt.soc.license.dto.LicenseResponse;
+import com.vdt.soc.license.dto.PageResponse;
 import com.vdt.soc.license.dto.UpdateLicenseRequest;
 import com.vdt.soc.license.entity.License;
 import com.vdt.soc.license.entity.LicenseAuditLog;
 import com.vdt.soc.license.exception.LicenseNotFoundException;
+import com.vdt.soc.license.mapper.LicenseMapper;
 import com.vdt.soc.license.repository.LicenseAuditLogRepository;
 import com.vdt.soc.license.repository.LicenseRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class LicenseService {
 
     private final LicenseRepository licenseRepo;
     private final LicenseAuditLogRepository auditLogRepo;
     private final ObjectMapper objectMapper;
+    private final LicenseMapper licenseMapper;
 
-    /**
-     * Create new license for tenant
-     * Just one ACTIVE license exist in one time
-     * epsQuota, mode, burstMultiplier was resolved from plan.
-     */
+    @Transactional
     public LicenseResponse createLicense(CreateLicenseRequest request, String performedBy) {
-        log.info("Creating new license ");
+        log.info("Creating new license for tenant {} with plan {}", request.getTenantId(), request.getPlan());
         licenseRepo.findByTenantIdAndStatus(request.getTenantId(), LicenseStatus.ACTIVE)
-                .ifPresent(l -> {
+                .ifPresent(license -> {
                     throw new IllegalStateException("Tenant already has an active license");
                 });
 
-        LicensePlan plan = request.getPlan();
-
-        License license = License.builder()
-                .tenantId(request.getTenantId())
-                .epsQuota(plan.getEpsQuota())
-                .mode(plan.getMode())
-                .burstMultiplier(plan.getBurstMultiplier())
-                .plan(plan)
-                .startDate(request.getStartDate())
-                .endDate(request.getEndDate())
-                .status(LicenseStatus.ACTIVE)
-                .build();
-        license = licenseRepo.save(license);
+        License license = licenseMapper.toEntity(request);
+        License savedLicense = licenseRepo.save(license);
 
         // Audit log
-        auditLogRepo.save(buildAuditLog(license, "CREATED", toJson(license), performedBy));
+        auditLogRepo.save(buildAuditLog(savedLicense, "CREATED", toJson(savedLicense), performedBy));
 
-        return toResponse(license);
+        log.info("License created successfully: id={}, tenant={}, plan={}", savedLicense.getId(), savedLicense.getTenantId(), savedLicense.getPlan());
+        return licenseMapper.toResponse(savedLicense);
     }
 
-    /**
-     * Lấy chi tiết license.
-     */
     @Transactional(readOnly = true)
     public LicenseResponse getLicense(UUID licenseId) {
+        log.debug("Fetching license by id: {}", licenseId);
         License license = findOrThrow(licenseId);
-        return toResponse(license);
+        log.debug("License found: {}", licenseId);
+        return licenseMapper.toResponse(license);
     }
 
-    /**
-     * Lấy danh sách license theo tenantId.
-     */
     @Transactional(readOnly = true)
-    public List<LicenseResponse> listLicenses(UUID tenantId) {
-        return licenseRepo.findByTenantIdOrderByCreatedAtDesc(tenantId).stream()
-                .map(this::toResponse)
-                .toList();
+    public PageResponse<LicenseResponse> listLicenses(UUID tenantId, Pageable pageable) {
+        log.debug("Listing licenses for tenant {} with pageable: {}", tenantId, pageable);
+        Page<License> licensePage = licenseRepo.findByTenantIdOrderByCreatedAtDesc(tenantId, pageable);
+        log.debug("Found {} licenses for tenant {}", licensePage.getContent().size(), tenantId);
+        return licenseMapper.toPageResponse(licensePage);
     }
 
-    /**
-     * Lấy tất cả license.
-     */
     @Transactional(readOnly = true)
-    public List<LicenseResponse> listAllLicenses() {
-        return licenseRepo.findAll().stream()
-                .map(this::toResponse)
-                .toList();
+    public PageResponse<LicenseResponse> listAllLicenses(Pageable pageable) {
+        log.debug("Listing all licenses");
+        PageResponse<LicenseResponse> licenses = licenseMapper.toPageResponse(licenseRepo.findAll(pageable));
+        log.debug("Found {} licenses total", licenses.getContent().size());
+        return licenses;
     }
 
-    /**
-     * Cập nhật license (gia hạn, thay đổi quota, mode).
-     */
+    @Transactional
     public LicenseResponse updateLicense(UUID licenseId, UpdateLicenseRequest request, String performedBy) {
+        log.info("Updating license {} by {}", licenseId, performedBy);
         License license = findOrThrow(licenseId);
 
         String oldValue = toJson(license);
 
-        if (request.getEpsQuota() != null) license.setEpsQuota(request.getEpsQuota());
-        if (request.getMode() != null) license.setMode(request.getMode());
-        if (request.getBurstMultiplier() != null) license.setBurstMultiplier(request.getBurstMultiplier());
-        if (request.getStartDate() != null) license.setStartDate(request.getStartDate());
-        if (request.getEndDate() != null) license.setEndDate(request.getEndDate());
+        licenseMapper.updateEntity(request, license);
 
         license = licenseRepo.save(license);
 
         // Audit log
         String newValue = toJson(license);
         auditLogRepo.save(buildAuditLog(license, "UPDATED",
-                toJson(java.util.Map.of("old", oldValue, "new", newValue)),
+                toJson(Map.of("old", oldValue, "new", newValue)),
                 performedBy));
 
-        return toResponse(license);
+        log.info("License {} updated successfully by {}", licenseId, performedBy);
+        return licenseMapper.toResponse(license);
     }
 
-    /**
-     * Thu hồi license (soft delete – đặt status = REVOKED).
-     */
+    @Transactional
     public LicenseResponse revokeLicense(UUID licenseId, String performedBy) {
+        log.info("Revoking license {} by {}", licenseId, performedBy);
         License license = findOrThrow(licenseId);
         license.setStatus(LicenseStatus.REVOKED);
         license = licenseRepo.save(license);
 
         auditLogRepo.save(buildAuditLog(license, "REVOKED", null, performedBy));
 
-        return toResponse(license);
+        log.info("License {} revoked successfully by {}", licenseId, performedBy);
+        return licenseMapper.toResponse(license);
     }
 
-    /**
-     * Lấy danh sách license sắp hết hạn (trong N ngày tới).
-     */
     @Transactional(readOnly = true)
     public List<LicenseResponse> getExpiringLicenses(int days) {
+        log.debug("Fetching licenses expiring within {} days", days);
         Instant now = Instant.now();
         Instant futureDate = now.plus(days, ChronoUnit.DAYS);
-        return licenseRepo.findLicensesExpiringSoon(now, futureDate).stream()
-                .map(this::toResponse)
-                .toList();
+        List<LicenseResponse> licenses = licenseMapper.toResponseList(licenseRepo.findLicensesExpiringSoon(now, futureDate));
+        log.debug("Found {} licenses expiring within {} days", licenses.size(), days);
+        return licenses;
     }
 
-    /**
-     * Lấy audit log của một license.
-     */
-    @Transactional(readOnly = true)
-    public List<LicenseAuditLogResponse> getAuditLogs(UUID licenseId) {
-        findOrThrow(licenseId); // đảm bảo license tồn tại
-        return auditLogRepo.findByLicenseIdOrderByCreatedAtDesc(licenseId).stream()
-                .map(LicenseAuditLogResponse::from)
-                .toList();
-    }
-
-    /**
-     * Internal API: Lấy tất cả policy đang active cho Collector.
-     */
     @Transactional(readOnly = true)
     public List<PolicyDTO> getAllActivePolicies() {
-        return licenseRepo.findAll().stream()
+        log.debug("Fetching all active policies");
+        List<PolicyDTO> policies = licenseRepo.findAll().stream()
                 .filter(License::isActive)
                 .map(this::toPolicyDTO)
                 .toList();
+        log.debug("Found {} active policies", policies.size());
+        return policies;
     }
 
     // ── Helper methods ──
 
     private License findOrThrow(UUID licenseId) {
+        log.debug("Looking up license by id: {}", licenseId);
         return licenseRepo.findById(licenseId)
-                .orElseThrow(() -> new LicenseNotFoundException(licenseId));
+                .orElseThrow(() -> {
+                    log.warn("License not found: {}", licenseId);
+                    return new LicenseNotFoundException(licenseId);
+                });
     }
 
     private LicenseAuditLog buildAuditLog(License license, String action, String changes, String performedBy) {
@@ -181,10 +153,6 @@ public class LicenseService {
                 .changes(changes)
                 .performedBy(performedBy)
                 .build();
-    }
-
-    private LicenseResponse toResponse(License license) {
-        return LicenseResponse.from(license);
     }
 
     private PolicyDTO toPolicyDTO(License license) {

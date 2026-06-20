@@ -1,6 +1,6 @@
 package com.vdt.soc.collector.cache;
 
-import com.vdt.soc.common.model.dto.TenantApiKeyMapping;
+import com.vdt.soc.common.core.dto.TenantApiKeyMapping;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

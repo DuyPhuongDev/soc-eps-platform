@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
@@ -38,7 +39,8 @@ public class LicenseAuditLog {
     @Column(nullable = false, length = 50)
     private String action;
 
-    @Column(columnDefinition = "jsonb")
+    @Column(name = "changes", columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
     private String changes;
 
     @Column(name = "performed_by")

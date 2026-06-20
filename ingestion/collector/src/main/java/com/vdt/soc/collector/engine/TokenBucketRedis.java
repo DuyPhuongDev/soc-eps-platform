@@ -1,6 +1,6 @@
 package com.vdt.soc.collector.engine;
 
-import com.vdt.soc.common.model.dto.PolicyDTO;
+import com.vdt.soc.common.core.dto.PolicyDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;

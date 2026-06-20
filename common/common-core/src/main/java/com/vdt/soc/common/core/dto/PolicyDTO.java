@@ -1,8 +1,8 @@
-package com.vdt.soc.common.model.dto;
+package com.vdt.soc.common.core.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.vdt.soc.common.model.enumeration.LicenseMode;
-import com.vdt.soc.common.model.enumeration.LicensePlan;
+import com.vdt.soc.common.core.enumeration.LicenseMode;
+import com.vdt.soc.common.core.enumeration.LicensePlan;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,7 +29,7 @@ public class PolicyDTO {
      * Default policy for unknown tenants — throttle everything.
      */
     public static final PolicyDTO DEFAULT = PolicyDTO.builder()
-            .tenantId(UUID.fromString("00000000-0000-0000-000000000000"))
+            .tenantId(UUID.fromString("00000000-0000-0000-0000-000000000000"))
             .plan(LicensePlan.STARTER)
             .epsQuota(0)
             .mode(LicenseMode.THROTTLE)

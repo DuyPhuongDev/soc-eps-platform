@@ -1,4 +1,4 @@
-package com.vdt.soc.tenant.auditing;
+package com.vdt.soc.license.auditing;
 
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.lang.NonNull;

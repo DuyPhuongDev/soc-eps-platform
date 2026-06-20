@@ -6,6 +6,7 @@
         <groupId>com.vdt.soc</groupId>
         <artifactId>eps-license-platform</artifactId>
         <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>common</artifactId>
@@ -15,7 +16,6 @@
 
     <modules>
         <module>common-core</module>
-        <module>common-model</module>
         <module>common-security</module>
         <module>common-kafka</module>
         <module>common-redis</module>

@@ -1,6 +1,6 @@
 package com.vdt.soc.collector.cache;
 
-import com.vdt.soc.common.model.dto.PolicyDTO;
+import com.vdt.soc.common.core.dto.PolicyDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

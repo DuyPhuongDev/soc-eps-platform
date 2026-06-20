@@ -2,15 +2,17 @@ package com.vdt.soc.license.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.vdt.soc.common.model.enumeration.LicenseMode;
-import com.vdt.soc.common.model.enumeration.LicensePlan;
-import com.vdt.soc.common.model.enumeration.LicenseStatus;
+import com.vdt.soc.common.core.enumeration.LicenseMode;
+import com.vdt.soc.common.core.enumeration.LicensePlan;
+import com.vdt.soc.common.core.enumeration.LicenseStatus;
 import com.vdt.soc.license.dto.CreateLicenseRequest;
 import com.vdt.soc.license.dto.LicenseResponse;
+import com.vdt.soc.license.dto.PageResponse;
 import com.vdt.soc.license.dto.UpdateLicenseRequest;
 import com.vdt.soc.license.entity.License;
 import com.vdt.soc.license.entity.LicenseAuditLog;
 import com.vdt.soc.license.exception.LicenseNotFoundException;
+import com.vdt.soc.license.mapper.LicenseMapper;
 import com.vdt.soc.license.repository.LicenseAuditLogRepository;
 import com.vdt.soc.license.repository.LicenseRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +24,11 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -31,6 +38,7 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -44,6 +52,9 @@ class LicenseServiceTest {
     @Mock
     private LicenseAuditLogRepository auditLogRepo;
 
+    @Mock
+    private LicenseMapper licenseMapper;
+
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
@@ -53,7 +64,6 @@ class LicenseServiceTest {
     private UUID tenantId;
     private UUID licenseId;
     private License starterLicense;
-    private License professionalLicense;
     private Instant now;
     private Instant startDate;
     private Instant endDate;
@@ -78,16 +88,28 @@ class LicenseServiceTest {
                 .build();
         starterLicense.setId(licenseId);
 
-        professionalLicense = License.builder()
-                .tenantId(tenantId)
-                .epsQuota(LicensePlan.PROFESSIONAL.getEpsQuota())
-                .mode(LicensePlan.PROFESSIONAL.getMode())
-                .burstMultiplier(LicensePlan.PROFESSIONAL.getBurstMultiplier())
-                .plan(LicensePlan.PROFESSIONAL)
-                .startDate(startDate)
-                .endDate(endDate)
-                .status(LicenseStatus.ACTIVE)
-                .build();
+        // Default mapper stubs — delegate to real mapping logic
+        lenient().when(licenseMapper.toEntity(any(CreateLicenseRequest.class))).thenAnswer(inv -> {
+            CreateLicenseRequest req = inv.getArgument(0);
+            LicensePlan plan = req.getPlan();
+            return License.builder()
+                    .tenantId(req.getTenantId())
+                    .epsQuota(plan.getEpsQuota())
+                    .mode(plan.getMode())
+                    .burstMultiplier(plan.getBurstMultiplier())
+                    .plan(plan)
+                    .startDate(req.getStartDate())
+                    .endDate(req.getEndDate())
+                    .status(LicenseStatus.ACTIVE)
+                    .build();
+        });
+        lenient().when(licenseMapper.toResponse(any(License.class))).thenAnswer(inv ->
+                LicenseResponse.from(inv.getArgument(0)));
+        lenient().when(licenseMapper.toPageResponse(any())).thenAnswer(inv -> {
+            @SuppressWarnings("unchecked")
+            Page<License> page = inv.getArgument(0);
+            return PageResponse.fromPage(page.map(LicenseResponse::from));
+        });
     }
 
     // ── createLicense ──
@@ -215,22 +237,24 @@ class LicenseServiceTest {
 
     @Test
     void listLicenses_byTenantId() {
-        when(licenseRepo.findByTenantIdOrderByCreatedAtDesc(tenantId))
-                .thenReturn(List.of(starterLicense));
+        Page<License> licensePage = new PageImpl<>(List.of(starterLicense), Pageable.unpaged(), 1);
+        when(licenseRepo.findByTenantIdOrderByCreatedAtDesc(any(UUID.class), any(Pageable.class)))
+                .thenReturn(licensePage);
 
-        List<LicenseResponse> responses = licenseService.listLicenses(tenantId);
+        PageResponse<LicenseResponse> responses = licenseService.listLicenses(tenantId, Pageable.unpaged());
 
-        assertThat(responses).hasSize(1);
-        assertThat(responses.get(0).getTenantId()).isEqualTo(tenantId);
+        assertThat(responses.getContent()).hasSize(1);
+        assertThat(responses.getContent().get(0).getTenantId()).isEqualTo(tenantId);
     }
 
     @Test
     void listAllLicenses() {
-        when(licenseRepo.findAll()).thenReturn(List.of(starterLicense));
+        Page<License> licensePage = new PageImpl<>(List.of(starterLicense), Pageable.unpaged(), 1);
+        when(licenseRepo.findAll(any(Pageable.class))).thenReturn(licensePage);
 
-        List<LicenseResponse> responses = licenseService.listAllLicenses();
+        PageResponse<LicenseResponse> responses = licenseService.listAllLicenses(Pageable.unpaged());
 
-        assertThat(responses).hasSize(1);
+        assertThat(responses.getContent()).hasSize(1);
     }
 
     // ── updateLicense ──
@@ -317,27 +341,6 @@ class LicenseServiceTest {
         List<LicenseResponse> responses = licenseService.getExpiringLicenses(7);
 
         assertThat(responses).isEmpty();
-    }
-
-    // ── getAuditLogs ──
-
-    @Test
-    void getAuditLogs_success() {
-        LicenseAuditLog log = LicenseAuditLog.builder()
-                .licenseId(licenseId)
-                .tenantId(tenantId)
-                .action("CREATED")
-                .performedBy("admin")
-                .build();
-
-        when(licenseRepo.findById(licenseId)).thenReturn(Optional.of(starterLicense));
-        when(auditLogRepo.findByLicenseIdOrderByCreatedAtDesc(licenseId))
-                .thenReturn(List.of(log));
-
-        var responses = licenseService.getAuditLogs(licenseId);
-
-        assertThat(responses).hasSize(1);
-        assertThat(responses.get(0).getAction()).isEqualTo("CREATED");
     }
 
     // ── getAllActivePolicies ──

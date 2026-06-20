@@ -14,17 +14,11 @@ import java.util.UUID;
 @Getter
 public class JwtAuthentication extends AbstractAuthenticationToken {
 
-    private final UUID userId;
-    private final UUID tenantId;
-    private final String username;
-    private final String role;
+    private final JwtPrincipal jwtPrincipal;
 
     public JwtAuthentication(UUID userId, UUID tenantId, String username, String role) {
         super(List.of(new SimpleGrantedAuthority("ROLE_" + role)));
-        this.userId = userId;
-        this.tenantId = tenantId;
-        this.username = username;
-        this.role = role;
+        this.jwtPrincipal = new JwtPrincipal(userId, tenantId, username, role);
         setAuthenticated(true);
     }
 
@@ -35,6 +29,18 @@ public class JwtAuthentication extends AbstractAuthenticationToken {
 
     @Override
     public Object getPrincipal() {
-        return username;
+        return jwtPrincipal;
+    }
+
+    public String getUsername() {
+        return this.jwtPrincipal.username();
+    }
+
+    public UUID getTenantId(){
+        return this.jwtPrincipal.tenantId();
+    }
+
+    public UUID getUserId(){
+        return this.jwtPrincipal.userId();
     }
 }
