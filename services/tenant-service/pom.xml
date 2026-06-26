@@ -23,6 +23,11 @@
             <artifactId>common-security</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.vdt.soc</groupId>
+            <artifactId>common-etcd</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>

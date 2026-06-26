@@ -11,6 +11,7 @@ import com.vdt.soc.tenant.dto.UpdateTenantRequest;
 import com.vdt.soc.tenant.entity.Tenant;
 import com.vdt.soc.tenant.entity.TenantApiKey;
 import com.vdt.soc.tenant.entity.User;
+import com.vdt.soc.tenant.etcd.EtcdApiKeyPublisher;
 import com.vdt.soc.tenant.exception.DuplicateResourceException;
 import com.vdt.soc.tenant.exception.ResourceNotFoundException;
 import com.vdt.soc.tenant.repository.TenantApiKeyRepository;
@@ -28,13 +29,15 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TenantService {
+public class
+TenantService {
 
     private final TenantRepository tenantRepository;
     private final UserRepository userRepository;
     private final TenantApiKeyRepository apiKeyRepository;
     private final PasswordEncoder passwordEncoder;
     private final ApiKeyGenerator apiKeyGenerator;
+    private final EtcdApiKeyPublisher etcdApiKeyPublisher;
 
     @Transactional
     public CreateTenantResponse createTenant(CreateTenantRequest request) {
@@ -76,6 +79,9 @@ public class TenantService {
                 .status(ApiKeyStatus.ACTIVE)
                 .build();
         apiKeyRepository.save(apiKey);
+
+        // Publish to etcd for real-time collector sync
+        etcdApiKeyPublisher.publish(tenant.getId(), apiKey.getApiKeyHash());
 
         log.info("Tenant created successfully: id={}, name={}", tenant.getId(), tenant.getName());
         return CreateTenantResponse.builder()
@@ -137,6 +143,15 @@ public class TenantService {
         if (!tenantRepository.existsById(id)) {
             throw new ResourceNotFoundException("Tenant not found: " + id);
         }
+
+        // Remove API keys from etcd before deleting
+        List<TenantApiKeyMapping> mappings = listActiveApiKeyMappings();
+        for (TenantApiKeyMapping m : mappings) {
+            if (m.getTenantId().equals(id)) {
+                etcdApiKeyPublisher.remove(m.getApiKeyHash());
+            }
+        }
+
         tenantRepository.deleteById(id);
     }
 

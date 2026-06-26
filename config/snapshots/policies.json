@@ -1,0 +1,9 @@
+[ {
+  "tenantId" : "84dd8c25-6e29-4d06-ae7c-4e8ef551f39b",
+  "plan" : "STARTER",
+  "epsQuota" : 100,
+  "mode" : "THROTTLE",
+  "burstMultiplier" : 1.0,
+  "validUntil" : 1784973435.123456789,
+  "default" : false
+} ]

@@ -8,6 +8,7 @@ import com.vdt.soc.tenant.dto.UpdateTenantRequest;
 import com.vdt.soc.tenant.entity.Tenant;
 import com.vdt.soc.tenant.entity.TenantApiKey;
 import com.vdt.soc.tenant.entity.User;
+import com.vdt.soc.tenant.etcd.EtcdApiKeyPublisher;
 import com.vdt.soc.tenant.exception.DuplicateResourceException;
 import com.vdt.soc.tenant.exception.ResourceNotFoundException;
 import com.vdt.soc.tenant.repository.TenantApiKeyRepository;
@@ -46,6 +47,8 @@ class TenantServiceTest {
     private PasswordEncoder passwordEncoder;
     @Mock
     private ApiKeyGenerator apiKeyGenerator;
+    @Mock
+    private EtcdApiKeyPublisher etcdApiKeyPublisher;
 
     @InjectMocks
     private TenantService tenantService;

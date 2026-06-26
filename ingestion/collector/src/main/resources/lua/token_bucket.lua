@@ -33,22 +33,33 @@ end
 
 -- Refill tokens based on elapsed time since last refill
 -- tokens_to_add = elapsed_seconds * refill_rate
+-- Guard against negative elapsed (clock drift / NTP adjustment across instances):
+-- if another collector wrote last_refill_ms with a slightly faster clock,
+-- we clamp elapsed to 0 rather than subtracting tokens.
 local elapsed_ms = now_ms - last_refill_ms
 if elapsed_ms > 0 then
     local tokens_to_add = (elapsed_ms / 1000.0) * refill_rate
     tokens = math.min(capacity, tokens + tokens_to_add)
     last_refill_ms = now_ms
+elseif elapsed_ms < 0 then
+    -- Clock drifted backwards — keep current tokens, advance timestamp
+    last_refill_ms = now_ms
 end
 
--- Try to consume requested tokens
-local allowed = 0
+-- Try to consume requested tokens (with partial support)
+local consumed = 0
 if tokens >= requested then
+    -- Full allocation
     tokens = tokens - requested
-    allowed = 1
+    consumed = requested
+elseif tokens > 0 then
+    -- Partial allocation: consume whatever is available
+    consumed = tokens
+    tokens = 0
 end
 
 -- Persist updated state with TTL (auto-cleanup inactive tenant buckets)
 redis.call('HMSET', bucket_key, 'tokens', tokens, 'last_refill_ms', last_refill_ms)
 redis.call('EXPIRE', bucket_key, 7200) -- 2h TTL for inactive buckets
 
-return {allowed, math.floor(tokens)}
+return {consumed, math.floor(tokens)}

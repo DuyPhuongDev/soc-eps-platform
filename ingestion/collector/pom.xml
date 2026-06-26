@@ -27,11 +27,6 @@
         </dependency>
         <dependency>
             <groupId>com.vdt.soc</groupId>
-            <artifactId>common-redis</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.vdt.soc</groupId>
             <artifactId>common-etcd</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -105,10 +100,6 @@
             <groupId>org.testcontainers</groupId>
             <artifactId>kafka</artifactId>
             <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
     </dependencies>
 

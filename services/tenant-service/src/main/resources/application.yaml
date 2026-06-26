@@ -43,6 +43,11 @@ app:
   api-key:
     prefix: "eps_"
     random-bytes: 32
+  etcd:
+    endpoints: ${ETCD_ENDPOINTS:http://localhost:2379}
+    key-prefix: /apikeys/
+    connect-timeout-ms: 5000
+    watch-retry-delay-ms: 3000
 
 eureka:
   client:

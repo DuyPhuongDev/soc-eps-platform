@@ -10,6 +10,7 @@ import com.vdt.soc.license.dto.PageResponse;
 import com.vdt.soc.license.dto.UpdateLicenseRequest;
 import com.vdt.soc.license.entity.License;
 import com.vdt.soc.license.entity.LicenseAuditLog;
+import com.vdt.soc.license.etcd.EtcdPolicyPublisher;
 import com.vdt.soc.license.exception.LicenseNotFoundException;
 import com.vdt.soc.license.mapper.LicenseMapper;
 import com.vdt.soc.license.repository.LicenseAuditLogRepository;
@@ -36,6 +37,7 @@ public class LicenseService {
     private final LicenseAuditLogRepository auditLogRepo;
     private final ObjectMapper objectMapper;
     private final LicenseMapper licenseMapper;
+    private final EtcdPolicyPublisher etcdPolicyPublisher;
 
     @Transactional
     public LicenseResponse createLicense(CreateLicenseRequest request, String performedBy) {
@@ -47,6 +49,9 @@ public class LicenseService {
 
         License license = licenseMapper.toEntity(request);
         License savedLicense = licenseRepo.save(license);
+
+        // Publish to etcd for real-time collector sync
+        etcdPolicyPublisher.publish(savedLicense);
 
         // Audit log
         auditLogRepo.save(buildAuditLog(savedLicense, "CREATED", toJson(savedLicense), performedBy));
@@ -90,6 +95,9 @@ public class LicenseService {
 
         license = licenseRepo.save(license);
 
+        // Publish updated policy to etcd
+        etcdPolicyPublisher.publish(license);
+
         // Audit log
         String newValue = toJson(license);
         auditLogRepo.save(buildAuditLog(license, "UPDATED",
@@ -106,6 +114,9 @@ public class LicenseService {
         License license = findOrThrow(licenseId);
         license.setStatus(LicenseStatus.REVOKED);
         license = licenseRepo.save(license);
+
+        // Remove policy from etcd — collector will stop allowing this tenant
+        etcdPolicyPublisher.remove(license.getTenantId());
 
         auditLogRepo.save(buildAuditLog(license, "REVOKED", null, performedBy));
 
