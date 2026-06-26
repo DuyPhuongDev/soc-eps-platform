@@ -1,5 +1,7 @@
 package com.vdt.soc.collector.exception;
 
+import com.vdt.soc.common.core.dto.ErrorResponse;
+import com.vdt.soc.common.core.exception.UnauthorizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +28,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ThrottledException.class)
     public ResponseEntity<ErrorResponse> handleThrottled(ThrottledException ex, ServerWebExchange exchange) {
         log.debug("Throttled: {}", ex.getMessage());
-        return build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), exchange, null);
+        return buildWithRetryAfter(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(),
+                exchange, ex.getRetryAfterSeconds());
     }
 
     @ExceptionHandler(WebExchangeBindException.class)
@@ -51,7 +54,20 @@ public class GlobalExceptionHandler {
 
     private ResponseEntity<ErrorResponse> build(HttpStatus status, String message,
                                                 ServerWebExchange exchange, Map<String, String> fieldErrors) {
-        String path = exchange != null && exchange.getRequest() != null
+        return buildWithRetryAfter(status, message, exchange, fieldErrors, null);
+    }
+
+    private ResponseEntity<ErrorResponse> buildWithRetryAfter(HttpStatus status, String message,
+                                                               ServerWebExchange exchange,
+                                                               Long retryAfterSeconds) {
+        return buildWithRetryAfter(status, message, exchange, null, retryAfterSeconds);
+    }
+
+    private ResponseEntity<ErrorResponse> buildWithRetryAfter(HttpStatus status, String message,
+                                                               ServerWebExchange exchange,
+                                                               Map<String, String> fieldErrors,
+                                                               Long retryAfterSeconds) {
+        String path = exchange != null
                 ? exchange.getRequest().getURI().getPath()
                 : "/unknown";
 
@@ -63,6 +79,11 @@ public class GlobalExceptionHandler {
                 .path(path)
                 .fieldErrors(fieldErrors)
                 .build();
-        return ResponseEntity.status(status).body(body);
+
+        ResponseEntity.BodyBuilder builder = ResponseEntity.status(status);
+        if (retryAfterSeconds != null) {
+            builder.header("Retry-After", String.valueOf(retryAfterSeconds));
+        }
+        return builder.body(body);
     }
 }

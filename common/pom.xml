@@ -18,7 +18,6 @@
         <module>common-core</module>
         <module>common-security</module>
         <module>common-kafka</module>
-        <module>common-redis</module>
         <module>common-etcd</module>
     </modules>
 </project>

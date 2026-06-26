@@ -48,7 +48,7 @@ public class PolicyCache {
                         PolicyDTO::getTenantId,
                         Function.identity(),
                         (existing, replacement) -> replacement));
-        cache.replaceAll((k, v) -> newMap.getOrDefault(k, v));
+        cache.replaceAll(newMap::getOrDefault);
 
         // Remove tenants no longer in the fresh set, add new ones
         cache.keySet().retainAll(newMap.keySet());
@@ -62,6 +62,29 @@ public class PolicyCache {
      */
     public int size() {
         return cache.size();
+    }
+
+    /**
+     * Add or update a single policy (used by etcd watch for real-time updates).
+     *
+     * @param policy the policy to upsert
+     */
+    public void put(PolicyDTO policy) {
+        if (policy.getTenantId() != null) {
+            cache.put(policy.getTenantId(), policy);
+            log.debug("PolicyCache upsert: tenant={}, plan={}, eps={}",
+                    policy.getTenantId(), policy.getPlan(), policy.getEpsQuota());
+        }
+    }
+
+    /**
+     * Remove a single policy by tenant ID (used by etcd watch on revoke/delete).
+     *
+     * @param tenantId the tenant whose policy should be removed
+     */
+    public void remove(UUID tenantId) {
+        cache.remove(tenantId);
+        log.debug("PolicyCache remove: tenant={}", tenantId);
     }
 
     /**

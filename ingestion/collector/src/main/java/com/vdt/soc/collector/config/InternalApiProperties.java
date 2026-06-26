@@ -10,9 +10,14 @@ import org.springframework.stereotype.Component;
 public class InternalApiProperties {
 
     /**
-     * Base URL of the tenant-service (e.g. http://localhost:8082).
+     * Base URL of the tenant-service (e.g. <a href="http://localhost:8082">...</a>).
      */
     private String tenantServiceUrl = "http://localhost:8082";
+
+    /**
+     * Base URL of the license-service (e.g. <a href="http://localhost:8083">...</a>).
+     */
+    private String licenseServiceUrl = "http://localhost:8083";
 
     /**
      * Shared secret for authenticating to tenant-service's internal API.

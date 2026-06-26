@@ -38,3 +38,6 @@ tools/
 
 ### MacOS ###
 .DS_Store
+
+### lua config ###
+.luarc.json

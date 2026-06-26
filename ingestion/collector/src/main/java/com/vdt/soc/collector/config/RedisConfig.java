@@ -6,36 +6,25 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
-import org.springframework.data.redis.serializer.RedisSerializationContext;
-import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 import java.util.List;
 
+/**
+ * Collector-specific Redis configuration.
+ * <p>
+ * The {@code ReactiveRedisTemplate<String, String>} bean is provided by
+ * Spring Boot's {@code RedisReactiveAutoConfiguration} via
+ * {@code ReactiveStringRedisTemplate} (which extends {@code ReactiveRedisTemplate<String, String>}).
+ * <p>
+ * This config registers only the Token Bucket Lua script and the
+ * {@link TokenBucketEngine} implementation.
+ */
 @Configuration
 @RequiredArgsConstructor
 public class RedisConfig {
-
-    private final ReactiveRedisConnectionFactory connectionFactory;
-
-    @Bean
-    public ReactiveRedisTemplate<String, String> reactiveRedisTemplate() {
-        StringRedisSerializer keySerializer = new StringRedisSerializer();
-        StringRedisSerializer valueSerializer = new StringRedisSerializer();
-
-        RedisSerializationContext<String, String> context = RedisSerializationContext
-                .<String, String>newSerializationContext(keySerializer)
-                .key(keySerializer)
-                .value(valueSerializer)
-                .hashKey(keySerializer)
-                .hashValue(valueSerializer)
-                .build();
-
-        return new ReactiveRedisTemplate<>(connectionFactory, context);
-    }
 
     @Bean
     public RedisScript<List> tokenBucketScript() {

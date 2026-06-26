@@ -1,5 +1,7 @@
 package com.vdt.soc.common.core.util;
 
+import lombok.experimental.UtilityClass;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -9,11 +11,8 @@ import java.util.HexFormat;
  * Utility class for hashing operations.
  * Centralizes SHA-256 hashing used across services (API key hashing, etc.)
  */
+@UtilityClass
 public final class HashUtil {
-
-    private HashUtil() {
-        // Utility class
-    }
 
     /**
      * Compute the SHA-256 hash of the given input string and return as lowercase hex.

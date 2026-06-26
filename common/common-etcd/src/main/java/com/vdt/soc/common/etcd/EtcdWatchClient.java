@@ -5,10 +5,12 @@ import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.kv.GetResponse;
+import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.watch.WatchEvent;
 import io.etcd.jetcd.watch.WatchResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -18,29 +20,34 @@ import java.util.function.Consumer;
 
 /**
  * Wrapper around jetcd providing simple watch and get operations
- * for the policy distribution pattern (license → etcd → collector).
+ * for the distribution pattern (service → etcd → collector).
+ * <p>
+ * Generic — callers pass the prefix they want to watch/read.
+ * Used by both {@code EtcdPolicyWatcher} (/policies/) and
+ * {@code EtcdApiKeyWatcher} (/apikeys/).
  * <p>
  * Includes automatic retry logic for watch reconnection.
  */
 @Slf4j
 @RequiredArgsConstructor
+@Component
 public class EtcdWatchClient {
 
-    private static final ByteSequence EMPTY_PREFIX = ByteSequence.from("", StandardCharsets.UTF_8);
     private final Client etcdClient;
-    private final EtcdProperties properties;
 
     /**
-     * Get all key-value pairs under the policy prefix.
+     * Get all key-value pairs under a given prefix.
      *
-     * @return list of key-value pairs as strings
+     * @param prefix the etcd key prefix (e.g. "/policies/", "/apikeys/")
+     * @return list of key-value pairs
      */
-    public List<KeyValue> getAllPolicies() {
+    public List<KeyValue> getAll(String prefix) {
         try {
-            ByteSequence prefix = ByteSequence.from(properties.getKeyPrefix(), StandardCharsets.UTF_8);
+            ByteSequence keyPrefix = ByteSequence.from(prefix, StandardCharsets.UTF_8);
             KV kvClient = etcdClient.getKVClient();
 
-            CompletableFuture<GetResponse> future = kvClient.get(prefix);
+            GetOption option = GetOption.newBuilder().isPrefix(true).build();
+            CompletableFuture<GetResponse> future = kvClient.get(keyPrefix, option);
             GetResponse response = future.get();
             return response.getKvs().stream()
                     .map(kv -> new KeyValue(
@@ -48,23 +55,24 @@ public class EtcdWatchClient {
                             kv.getValue().toString(StandardCharsets.UTF_8)))
                     .toList();
         } catch (Exception e) {
-            log.error("Failed to get all policies from etcd: {}", e.getMessage());
+            log.error("Failed to get keys from etcd prefix={}: {}", prefix, e.getMessage());
             return Collections.emptyList();
         }
     }
 
     /**
-     * Watch for changes under the policy prefix.
+     * Watch for changes under a given prefix.
      * Calls the consumer for each watch event.
      *
-     * @param onEvent consumer for watch events
+     * @param prefix  the etcd key prefix to watch
+     * @param onEvent consumer for each watch event
      * @return the Watch.Watcher instance (caller should close on shutdown)
      */
-    public Watch.Watcher watchPolicies(Consumer<WatchEvent> onEvent) {
-        ByteSequence prefix = ByteSequence.from(properties.getKeyPrefix(), StandardCharsets.UTF_8);
+    public Watch.Watcher watch(String prefix, Consumer<WatchEvent> onEvent) {
+        ByteSequence keyPrefix = ByteSequence.from(prefix, StandardCharsets.UTF_8);
         Watch watchClient = etcdClient.getWatchClient();
 
-        return watchClient.watch(prefix, new Watch.Listener() {
+        return watchClient.watch(keyPrefix, new Watch.Listener() {
             @Override
             public void onNext(WatchResponse response) {
                 for (WatchEvent event : response.getEvents()) {
@@ -77,12 +85,12 @@ public class EtcdWatchClient {
 
             @Override
             public void onError(Throwable throwable) {
-                log.error("etcd watch error: {}", throwable.getMessage());
+                log.error("etcd watch error on prefix={}: {}", prefix, throwable.getMessage());
             }
 
             @Override
             public void onCompleted() {
-                log.info("etcd watch completed");
+                log.info("etcd watch completed on prefix={}", prefix);
             }
         });
     }

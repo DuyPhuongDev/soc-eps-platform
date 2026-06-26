@@ -20,22 +20,24 @@ import java.util.UUID;
  * The Lua script reads current tokens, refills based on elapsed time,
  * attempts to consume, and persists the updated state — all in one
  * atomic Redis operation. No race conditions across collector instances.
+ * <p>
+ * Supports partial consumption: if the bucket has fewer tokens than
+ * requested, all available tokens are consumed and returned.
  */
 @Slf4j
 @RequiredArgsConstructor
 public class TokenBucketRedis implements TokenBucketEngine {
 
     private static final String BUCKET_KEY_PREFIX = "bucket:";
-    private static final long REQUESTED_TOKENS = 1L;
 
     private final ReactiveRedisTemplate<String, String> redisTemplate;
     private final RedisScript<List> script;
 
     @Override
-    public Mono<Boolean> tryConsume(UUID tenantId, PolicyDTO policy) {
+    public Mono<Long> tryConsume(UUID tenantId, PolicyDTO policy, long requested) {
         // Default policy → throttle everything
         if (policy.isDefault()) {
-            return Mono.just(false);
+            return Mono.just(0L);
         }
 
         String bucketKey = BUCKET_KEY_PREFIX + tenantId.toString();
@@ -43,8 +45,8 @@ public class TokenBucketRedis implements TokenBucketEngine {
         long refillRate = policy.getEpsQuota();
         long nowMs = System.currentTimeMillis();
 
-        if (capacity <= 0) {
-            return Mono.just(false);
+        if (capacity <= 0 || requested <= 0) {
+            return Mono.just(0L);
         }
 
         return redisTemplate.execute(script,
@@ -53,19 +55,32 @@ public class TokenBucketRedis implements TokenBucketEngine {
                                 String.valueOf(capacity),
                                 String.valueOf(refillRate),
                                 String.valueOf(nowMs),
-                                String.valueOf(REQUESTED_TOKENS)
+                                String.valueOf(requested)
                         ))
                 .singleOrEmpty()
                 .map(result -> {
                     if (result == null || result.isEmpty()) {
-                        return false;
+                        return 0L;
                     }
-                    return Long.valueOf(1).equals(result.getFirst());
+                    return toLong(result.getFirst());
                 })
                 .onErrorResume(e -> {
                     log.error("Token bucket Redis error for tenant={}: {}", tenantId, e.getMessage());
-                    // Fail open: allow event on Redis error (prefer availability over enforcement)
-                    return Mono.just(true);
+                    // Fail open: allow all requested events on Redis error
+                    return Mono.just(requested);
                 });
+    }
+
+    /**
+     * Safely convert a Lua script result element to Long.
+     */
+    private static Long toLong(Object o) {
+        if (o == null) return 0L;
+        if (o instanceof Number n) return n.longValue();
+        try {
+            return Long.parseLong(o.toString());
+        } catch (NumberFormatException e) {
+            return 0L;
+        }
     }
 }

@@ -23,7 +23,7 @@ spring:
 
   # Kafka
   kafka:
-    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -58,13 +58,6 @@ app:
     snapshot-dir: ${CACHE_SNAPSHOT_DIR:config/snapshots}
     policy-snapshot-file: policies.json
     api-key-snapshot-file: api-keys.json
-
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:8086/eureka
-  instance:
-    prefer-ip-address: true
 
 logging:
   level:

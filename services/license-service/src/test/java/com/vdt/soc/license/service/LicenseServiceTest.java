@@ -13,6 +13,7 @@ import com.vdt.soc.license.entity.License;
 import com.vdt.soc.license.entity.LicenseAuditLog;
 import com.vdt.soc.license.exception.LicenseNotFoundException;
 import com.vdt.soc.license.mapper.LicenseMapper;
+import com.vdt.soc.license.etcd.EtcdPolicyPublisher;
 import com.vdt.soc.license.repository.LicenseAuditLogRepository;
 import com.vdt.soc.license.repository.LicenseRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,6 +58,9 @@ class LicenseServiceTest {
 
     @Spy
     private ObjectMapper objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
+
+    @Mock
+    private EtcdPolicyPublisher etcdPolicyPublisher;
 
     @InjectMocks
     private LicenseService licenseService;

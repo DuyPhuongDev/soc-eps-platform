@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,18 +14,17 @@ import java.util.stream.Collectors;
 /**
  * In-memory cache of API key hash → tenantId mappings.
  * <p>
- * The hash is SHA-256 hex of the raw API key. This way the cache
- * never stores plaintext keys, and lookups are fast O(1) via ConcurrentHashMap.
+ * Populated by {@link EtcdApiKeyWatcher} via etcd watch (real-time)
+ * with scheduled poll fallback in {@link CacheRefresher}.
  * <p>
- * Thread-safe: uses ConcurrentHashMap — no lock contention on read path.
+ * Thread-safe: uses {@link ConcurrentHashMap} — read path is lock-free O(1).
+ * Multi-instance sync is handled by etcd watch — every collector instance
+ * receives the same watch events and updates its local cache independently.
  */
 @Slf4j
 @Component
 public class ApiKeyCache {
 
-    /**
-     * key = sha256(apiKey), value = tenantId
-     */
     private final Map<String, UUID> cache = new ConcurrentHashMap<>();
 
     /**
@@ -38,7 +38,7 @@ public class ApiKeyCache {
     }
 
     /**
-     * Replace all entries with a fresh set from tenant-service poll.
+     * Replace all entries with a fresh set (used by scheduled poll fallback).
      *
      * @param mappings collection of {tenantId, apiKeyHash} pairs
      */
@@ -53,12 +53,25 @@ public class ApiKeyCache {
         cache.keySet().retainAll(newMap.keySet());
         cache.putAll(newMap);
 
-        log.info("ApiKeyCache refreshed: {} active API keys", cache.size());
+        log.info("ApiKeyCache replaced: {} active API keys", cache.size());
     }
 
     /**
-     * @return current number of cached API keys
+     * Add or update a single API key mapping (used by etcd watch).
      */
+    public void put(String apiKeyHash, UUID tenantId) {
+        cache.put(apiKeyHash, tenantId);
+        log.debug("ApiKeyCache put: hash={}, tenant={}", apiKeyHash, tenantId);
+    }
+
+    /**
+     * Remove a single API key mapping (used by etcd watch on revoke).
+     */
+    public void remove(String apiKeyHash) {
+        cache.remove(apiKeyHash);
+        log.debug("ApiKeyCache remove: hash={}", apiKeyHash);
+    }
+
     public int size() {
         return cache.size();
     }
