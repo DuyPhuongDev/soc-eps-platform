@@ -36,6 +36,9 @@ build/
 docs/
 tools/
 
+/data
+/config
+
 ### MacOS ###
 .DS_Store
 

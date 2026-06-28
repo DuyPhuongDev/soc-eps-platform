@@ -1,5 +1,6 @@
 package com.vdt.soc.collector.config;
 
+import com.vdt.soc.collector.engine.QuotaEnforcer;
 import com.vdt.soc.collector.engine.TokenBucketEngine;
 import com.vdt.soc.collector.engine.TokenBucketRedis;
 import lombok.RequiredArgsConstructor;
@@ -19,8 +20,8 @@ import java.util.List;
  * Spring Boot's {@code RedisReactiveAutoConfiguration} via
  * {@code ReactiveStringRedisTemplate} (which extends {@code ReactiveRedisTemplate<String, String>}).
  * <p>
- * This config registers only the Token Bucket Lua script and the
- * {@link TokenBucketEngine} implementation.
+ * This config registers the Token Bucket Lua script, the Quota Check Lua script,
+ * the {@link TokenBucketEngine}, and the {@link QuotaEnforcer}.
  */
 @Configuration
 @RequiredArgsConstructor
@@ -34,9 +35,24 @@ public class RedisConfig {
         return script;
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    @Bean
+    public RedisScript<List<Object>> quotaCheckScript() {
+        DefaultRedisScript<List<Object>> script = new DefaultRedisScript<>();
+        script.setLocation(new ClassPathResource("lua/quota_check.lua"));
+        script.setResultType((Class) List.class);
+        return script;
+    }
+
     @Bean
     public TokenBucketEngine tokenBucketEngine(ReactiveRedisTemplate<String, String> redisTemplate,
                                                RedisScript<List> tokenBucketScript) {
         return new TokenBucketRedis(redisTemplate, tokenBucketScript);
+    }
+
+    @Bean
+    public QuotaEnforcer quotaEnforcer(ReactiveRedisTemplate<String, String> redisTemplate,
+                                       RedisScript<List<Object>> quotaCheckScript) {
+        return new QuotaEnforcer(redisTemplate, quotaCheckScript);
     }
 }

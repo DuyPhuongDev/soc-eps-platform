@@ -32,6 +32,9 @@ public class License extends BaseEntity {
     @Column(name = "eps_quota", nullable = false)
     private Integer epsQuota;
 
+    @Column(name = "monthly_quota", nullable = false)
+    private Long monthlyQuota;
+
     @Column(nullable = false, length = 50)
     @Enumerated(EnumType.STRING)
     private LicenseMode mode = LicenseMode.THROTTLE;

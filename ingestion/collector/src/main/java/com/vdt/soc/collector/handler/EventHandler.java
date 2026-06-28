@@ -43,8 +43,8 @@ public class EventHandler {
             headers = @Header(name = "Retry-After", description = "Not present for 202"))
     @ApiResponse(responseCode = "400", description = "Invalid event payload")
     @ApiResponse(responseCode = "401", description = "Invalid or missing API key")
-    @ApiResponse(responseCode = "429", description = "EPS quota exceeded",
-            headers = @Header(name = "Retry-After", description = "Seconds before retry"))
+    @ApiResponse(responseCode = "429", description = "EPS quota exceeded or daily/monthly event volume quota exceeded",
+            headers = @Header(name = "Retry-After", description = "Seconds before retry (EPS throttle only)"))
     @ApiResponse(responseCode = "503", description = "Kafka unavailable")
 
     public Mono<EventResponse> ingestEvents(
@@ -76,8 +76,8 @@ public class EventHandler {
             headers = @Header(name = "Retry-After", description = "Not present for 202"))
     @ApiResponse(responseCode = "400", description = "Invalid event payload or empty batch")
     @ApiResponse(responseCode = "401", description = "Invalid or missing API key")
-    @ApiResponse(responseCode = "429", description = "EPS quota exceeded — no events accepted",
-            headers = @Header(name = "Retry-After", description = "Seconds before retry (usually 1)"))
+    @ApiResponse(responseCode = "429", description = "EPS quota exceeded or daily/monthly event volume quota exceeded — no events accepted",
+            headers = @Header(name = "Retry-After", description = "Seconds before retry (EPS throttle only)"))
     @ApiResponse(responseCode = "503", description = "Kafka unavailable")
     public Mono<EventBatchResponse> ingestBatch(
             @Valid @RequestBody EventBatchRequest batch,

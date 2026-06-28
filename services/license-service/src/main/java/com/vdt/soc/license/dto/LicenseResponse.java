@@ -26,6 +26,7 @@ public class LicenseResponse {
     private UUID tenantId;
     private LicensePlan plan;
     private Integer epsQuota;
+    private Long monthlyQuota;
     private LicenseMode mode;
     private Double burstMultiplier;
     private Instant startDate;
@@ -40,6 +41,7 @@ public class LicenseResponse {
                 .tenantId(license.getTenantId())
                 .plan(license.getPlan())
                 .epsQuota(license.getEpsQuota())
+                .monthlyQuota(license.getMonthlyQuota())
                 .mode(license.getMode())
                 .burstMultiplier(license.getBurstMultiplier())
                 .startDate(license.getStartDate())

@@ -20,6 +20,9 @@ public class UpdateLicenseRequest {
     @Min(value = 1, message = "epsQuota must be at least 1")
     private Integer epsQuota;
 
+    @Min(value = 1, message = "monthlyQuota must be at least 1")
+    private Long monthlyQuota;
+
     private LicenseMode mode;
 
     private Double burstMultiplier;
