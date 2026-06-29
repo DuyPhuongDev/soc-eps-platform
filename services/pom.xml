@@ -17,6 +17,8 @@
     <modules>
         <module>tenant-service</module>
         <module>license-service</module>
+        <module>aggregate-service</module>
+        <module>notification-service</module>
         <module>eureka-server</module>
         <module>api-gateway</module>
     </modules>

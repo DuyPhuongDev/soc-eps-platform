@@ -1,0 +1,87 @@
+server:
+  port: ${AGGREGATE_PORT:8084}
+
+spring:
+  application:
+    name: aggregate-service
+
+  # ── TimescaleDB (aggregate-service dedicated) ──
+  datasource:
+    url: jdbc:postgresql://${AGGREGATE_DB_HOST:localhost}:${AGGREGATE_DB_PORT:5435}/${AGGREGATE_DB_NAME:eps_aggregate_db}
+    driver-class-name: org.postgresql.Driver
+    username: ${AGGREGATE_DB_USER:eps_user}
+    password: ${AGGREGATE_DB_PASSWORD:eps_password}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+        default_schema: aggregate_db
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    schemas: aggregate_db
+    default-schema: aggregate_db
+    create-schemas: true
+    baseline-on-migrate: true
+    baseline-version: 0
+    table: flyway_schema_history
+    out-of-order: false
+    validate-on-migrate: true
+
+  # ── Redis (blocking) ──
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      timeout: 2000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-idle: 8
+          min-idle: 4
+          max-wait: 1000ms
+        shutdown-timeout: 100ms
+
+  # ── Kafka ──
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+# ── App properties ──
+app:
+  jwt:
+    secret: ${JWT_SECRET:change-me-please-this-secret-must-be-at-least-32-chars-long}
+    expiration-seconds: ${JWT_EXPIRATION_SECONDS:3600}
+    issuer: ${JWT_ISSUER:eps-tenant-service}
+  etcd:
+    endpoints: ${ETCD_ENDPOINTS:http://localhost:2379}
+    key-prefix: /policies/
+    connect-timeout-ms: 5000
+    watch-retry-delay-ms: 3000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+  instance:
+    prefer-ip-address: true
+
+logging:
+  level:
+    com.vdt.soc.aggregate: DEBUG
+    com.vdt.soc.aggregate.alert.AlertJob: DEBUG
