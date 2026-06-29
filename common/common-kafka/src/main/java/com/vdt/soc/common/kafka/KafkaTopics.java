@@ -10,9 +10,15 @@ public final class KafkaTopics {
      */
     public static final String EVENT_PREFIX = "events.";
     /**
-     * Topic for usage alert events from metric-aggregator.
+     * Topic for usage alert events from metric-aggregator (legacy — see ALERT_EVENTS).
      */
     public static final String USAGE_ALERTS = "usage-alerts";
+
+    /**
+     * Topic for alert events — fired/resolved by license-service, aggregate-service, etc.
+     * Consumed by notification-service for debounce, persistence, and delivery.
+     */
+    public static final String ALERT_EVENTS = "alert-events";
 
     private KafkaTopics() {
         // Utility class
