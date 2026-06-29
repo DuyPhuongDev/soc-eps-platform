@@ -15,20 +15,15 @@ import java.util.UUID;
  * Design:
  * - Two event categories per tenant: accepted and dropped
  * - Incoming rate is derived: incoming = accepted + dropped
- * - Two windows per category: 1-minute and 1-day
+ * - Single per-second bucket per category (aggregate service handles
+ *   all time-window aggregation: minute → timeseries_data, day → stats:drop:daily:*)
  * - Per-second buckets: each hash field = epochSecond, value = event count
  * - HINCRBY is O(1) atomic — multiple events in the same second are merged
  * - Old fields are cleaned up by Redis key expiry (no manual trim needed)
  * <p>
  * Key patterns:
- * eps:1m:ok:{tenantId}    → Hash, field=epochSecond, TTL 120s
- * eps:1m:drop:{tenantId}  → Hash, field=epochSecond, TTL 120s
- * eps:1d:ok:{tenantId}    → Hash, field=epochSecond, TTL 172800s
- * eps:1d:drop:{tenantId}  → Hash, field=epochSecond, TTL 172800s
- * <p>
- * Query pattern (Lua script, not yet implemented):
- * SUM of all fields in the hash = EPS for that window.
- * Incoming = SUM(ok) + SUM(drop).
+ * eps:ok:{tenantId}      → Hash, field=epochSecond, TTL 120s
+ * eps:drop:{tenantId}    → Hash, field=epochSecond, TTL 172800s
  * <p>
  * Metering is fire-and-forget: event recording errors must not block
  * the response — they are logged and swallowed.
@@ -38,13 +33,13 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EpsMeter {
 
-    private static final String KEY_1M_OK = "eps:1m:ok:";
-    private static final String KEY_1M_DROP = "eps:1m:drop:";
-    private static final String KEY_1D_OK = "eps:1d:ok:";
-    private static final String KEY_1D_DROP = "eps:1d:drop:";
+    private static final String KEY_OK = "eps:ok:";
+    private static final String KEY_DROP = "eps:drop:";
 
-    private static final Duration TTL_1M = Duration.ofSeconds(120);
-    private static final Duration TTL_1D = Duration.ofSeconds(172800);
+    /** 120s — aggregate service snapshots every 60s, so this gives one full retry window. */
+    private static final Duration TTL_OK = Duration.ofSeconds(120);
+    /** 48h — DropStatsService needs up to 24h of per-second history for hourly "day" aggregation. */
+    private static final Duration TTL_DROP = Duration.ofSeconds(172800);
 
     private final ReactiveRedisTemplate<String, String> redisTemplate;
 
@@ -70,8 +65,7 @@ public class EpsMeter {
             return Mono.empty();
         }
         String field = epochSecond();
-        return incrementAndExpire(KEY_1M_OK + tenantId, field, count, TTL_1M)
-                .then(incrementAndExpire(KEY_1D_OK + tenantId, field, count, TTL_1D));
+        return incrementAndExpire(KEY_OK + tenantId, field, count, TTL_OK);
     }
 
     /**
@@ -82,15 +76,14 @@ public class EpsMeter {
             return Mono.empty();
         }
         String field = epochSecond();
-        return incrementAndExpire(KEY_1M_DROP + tenantId, field, count, TTL_1M)
-                .then(incrementAndExpire(KEY_1D_DROP + tenantId, field, count, TTL_1D));
+        return incrementAndExpire(KEY_DROP + tenantId, field, count, TTL_DROP);
     }
 
     /**
      * HINCRBY + refresh TTL on a hash key.
      * <p>
      * TTL is refreshed on every write so the hash only expires after
-     * a full TTL window of inactivity — matching the old ZSET behavior.
+     * a full TTL window of inactivity.
      */
     private Mono<Void> incrementAndExpire(String key, String field, int count, Duration ttl) {
         return redisTemplate.<String, String>opsForHash()

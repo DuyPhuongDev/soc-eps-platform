@@ -80,6 +80,26 @@ services:
     networks:
       - eps-network
 
+  # ── TimescaleDB for aggregate-service ──
+  timescaledb_aggregate:
+    image: timescale/timescaledb:latest-pg17
+    container_name: eps-timescaledb-aggregate
+    environment:
+      POSTGRES_DB: eps_aggregate_db
+      POSTGRES_USER: eps_user
+      POSTGRES_PASSWORD: eps_password
+    ports:
+      - "5435:5432"
+    volumes:
+      - eps-timescaledb-aggregate-data:/var/lib/postgresql/data
+    networks:
+      - eps-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U eps_user -d eps_aggregate_db" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   etcd:
     image: quay.io/coreos/etcd:v3.6.0
     container_name: etcd
@@ -114,3 +134,5 @@ volumes:
   eps-postgres-data:
   eps-redis-data:
   kafka-data-1:
+  eps-timescaledb-aggregate-data:
+  eps-timescaledb-notification-data:
