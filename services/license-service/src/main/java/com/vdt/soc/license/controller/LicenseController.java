@@ -3,7 +3,6 @@ package com.vdt.soc.license.controller;
 import com.vdt.soc.common.core.dto.PolicyDTO;
 import com.vdt.soc.common.security.JwtPrincipal;
 import com.vdt.soc.license.dto.CreateLicenseRequest;
-import com.vdt.soc.license.dto.LicenseAuditLogResponse;
 import com.vdt.soc.license.dto.LicenseResponse;
 import com.vdt.soc.license.dto.PageResponse;
 import com.vdt.soc.license.dto.UpdateLicenseRequest;

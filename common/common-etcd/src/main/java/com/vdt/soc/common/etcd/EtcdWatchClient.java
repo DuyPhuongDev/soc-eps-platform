@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.function.Consumer;
 
 /**
@@ -46,7 +47,7 @@ public class EtcdWatchClient {
             ByteSequence keyPrefix = ByteSequence.from(prefix, StandardCharsets.UTF_8);
             KV kvClient = etcdClient.getKVClient();
 
-            GetOption option = GetOption.newBuilder().isPrefix(true).build();
+            GetOption option = GetOption.builder().isPrefix(true).build();
             CompletableFuture<GetResponse> future = kvClient.get(keyPrefix, option);
             GetResponse response = future.get();
             return response.getKvs().stream()

@@ -23,6 +23,7 @@ public interface LicenseMapper {
         return License.builder()
                 .tenantId(request.getTenantId())
                 .epsQuota(plan.getEpsQuota())
+                .monthlyQuota(plan.getMonthlyQuota())
                 .mode(plan.getMode())
                 .burstMultiplier(plan.getBurstMultiplier())
                 .plan(plan)

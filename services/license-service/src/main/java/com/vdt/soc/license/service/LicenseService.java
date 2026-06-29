@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vdt.soc.common.core.dto.PolicyDTO;
 import com.vdt.soc.common.core.enumeration.LicenseStatus;
 import com.vdt.soc.license.dto.CreateLicenseRequest;
-import com.vdt.soc.license.dto.LicenseAuditLogResponse;
 import com.vdt.soc.license.dto.LicenseResponse;
 import com.vdt.soc.license.dto.PageResponse;
 import com.vdt.soc.license.dto.UpdateLicenseRequest;
@@ -171,8 +170,10 @@ public class LicenseService {
                 .tenantId(license.getTenantId())
                 .plan(license.getPlan())
                 .epsQuota(license.getEpsQuota())
+                .monthlyQuota(license.getMonthlyQuota())
                 .mode(license.getMode())
                 .burstMultiplier(license.getBurstMultiplier())
+                .validFrom(license.getStartDate())
                 .validUntil(license.getEndDate())
                 .build();
     }

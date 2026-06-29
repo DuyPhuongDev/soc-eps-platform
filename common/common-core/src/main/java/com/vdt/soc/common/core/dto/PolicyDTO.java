@@ -32,6 +32,7 @@ public class PolicyDTO {
             .tenantId(UUID.fromString("00000000-0000-0000-0000-000000000000"))
             .plan(LicensePlan.STARTER)
             .epsQuota(0)
+            .monthlyQuota(0L)
             .mode(LicenseMode.THROTTLE)
             .burstMultiplier(1.0)
             .validUntil(null)
@@ -39,8 +40,13 @@ public class PolicyDTO {
     private UUID tenantId;
     private LicensePlan plan;
     private Integer epsQuota;
+    private Long monthlyQuota;
     private LicenseMode mode;
     private Double burstMultiplier;
+    /**
+     * License start date — anchor for monthly quota window computation.
+     */
+    private Instant validFrom;
     private Instant validUntil;
 
     public boolean isDefault() {

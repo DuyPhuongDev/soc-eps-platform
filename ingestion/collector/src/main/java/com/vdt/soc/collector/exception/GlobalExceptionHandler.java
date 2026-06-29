@@ -25,6 +25,12 @@ public class GlobalExceptionHandler {
         return build(HttpStatus.UNAUTHORIZED, ex.getMessage(), exchange, null);
     }
 
+    @ExceptionHandler(QuotaExceededException.class)
+    public ResponseEntity<ErrorResponse> handleQuotaExceeded(QuotaExceededException ex, ServerWebExchange exchange) {
+        log.debug("Quota exceeded: {}", ex.getMessage());
+        return build(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), exchange, null);
+    }
+
     @ExceptionHandler(ThrottledException.class)
     public ResponseEntity<ErrorResponse> handleThrottled(ThrottledException ex, ServerWebExchange exchange) {
         log.debug("Throttled: {}", ex.getMessage());

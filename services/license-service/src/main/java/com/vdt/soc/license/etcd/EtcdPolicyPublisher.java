@@ -133,8 +133,10 @@ public class EtcdPolicyPublisher {
                 .tenantId(license.getTenantId())
                 .plan(license.getPlan())
                 .epsQuota(license.getEpsQuota())
+                .monthlyQuota(license.getMonthlyQuota())
                 .mode(license.getMode())
                 .burstMultiplier(license.getBurstMultiplier())
+                .validFrom(license.getStartDate())
                 .validUntil(license.getEndDate())
                 .build();
     }

@@ -83,6 +83,7 @@ class LicenseServiceTest {
         starterLicense = License.builder()
                 .tenantId(tenantId)
                 .epsQuota(LicensePlan.STARTER.getEpsQuota())
+                .monthlyQuota(LicensePlan.STARTER.getMonthlyQuota())
                 .mode(LicensePlan.STARTER.getMode())
                 .burstMultiplier(LicensePlan.STARTER.getBurstMultiplier())
                 .plan(LicensePlan.STARTER)
@@ -99,6 +100,7 @@ class LicenseServiceTest {
             return License.builder()
                     .tenantId(req.getTenantId())
                     .epsQuota(plan.getEpsQuota())
+                    .monthlyQuota(plan.getMonthlyQuota())
                     .mode(plan.getMode())
                     .burstMultiplier(plan.getBurstMultiplier())
                     .plan(plan)
@@ -114,6 +116,23 @@ class LicenseServiceTest {
             Page<License> page = inv.getArgument(0);
             return PageResponse.fromPage(page.map(LicenseResponse::from));
         });
+        lenient().when(licenseMapper.toResponseList(any())).thenAnswer(inv -> {
+            @SuppressWarnings("unchecked")
+            List<License> licenses = inv.getArgument(0);
+            return licenses.stream().map(LicenseResponse::from).toList();
+        });
+        // updateEntity: copy non-null fields from request to entity (matching real MapStruct behavior)
+        lenient().doAnswer(inv -> {
+            UpdateLicenseRequest req = inv.getArgument(0);
+            License entity = inv.getArgument(1);
+            if (req.getEpsQuota() != null) entity.setEpsQuota(req.getEpsQuota());
+            if (req.getMonthlyQuota() != null) entity.setMonthlyQuota(req.getMonthlyQuota());
+            if (req.getMode() != null) entity.setMode(req.getMode());
+            if (req.getBurstMultiplier() != null) entity.setBurstMultiplier(req.getBurstMultiplier());
+            if (req.getStartDate() != null) entity.setStartDate(req.getStartDate());
+            if (req.getEndDate() != null) entity.setEndDate(req.getEndDate());
+            return null;
+        }).when(licenseMapper).updateEntity(any(UpdateLicenseRequest.class), any(License.class));
     }
 
     // ── createLicense ──
@@ -140,6 +159,7 @@ class LicenseServiceTest {
 
         assertThat(response.getPlan()).isEqualTo(LicensePlan.STARTER);
         assertThat(response.getEpsQuota()).isEqualTo(100);
+        assertThat(response.getMonthlyQuota()).isEqualTo(3_000_000L);
         assertThat(response.getMode()).isEqualTo(LicenseMode.THROTTLE);
         assertThat(response.getBurstMultiplier()).isEqualTo(1.0);
         assertThat(response.getStatus()).isEqualTo(LicenseStatus.ACTIVE);
@@ -169,6 +189,7 @@ class LicenseServiceTest {
 
         assertThat(response.getPlan()).isEqualTo(LicensePlan.PROFESSIONAL);
         assertThat(response.getEpsQuota()).isEqualTo(500);
+        assertThat(response.getMonthlyQuota()).isEqualTo(15_000_000L);
         assertThat(response.getMode()).isEqualTo(LicenseMode.BURST_THEN_THROTTLE);
         assertThat(response.getBurstMultiplier()).isEqualTo(1.5);
     }
@@ -194,6 +215,7 @@ class LicenseServiceTest {
 
         assertThat(response.getPlan()).isEqualTo(LicensePlan.ENTERPRISE);
         assertThat(response.getEpsQuota()).isEqualTo(2000);
+        assertThat(response.getMonthlyQuota()).isEqualTo(60_000_000L);
         assertThat(response.getMode()).isEqualTo(LicenseMode.OVERFLOW_BILLING);
         assertThat(response.getBurstMultiplier()).isEqualTo(2.0);
     }
@@ -354,6 +376,7 @@ class LicenseServiceTest {
         License revoked = License.builder()
                 .tenantId(UUID.randomUUID())
                 .epsQuota(100)
+                .monthlyQuota(3_000_000L)
                 .mode(LicenseMode.THROTTLE)
                 .burstMultiplier(1.0)
                 .plan(LicensePlan.STARTER)
@@ -423,10 +446,41 @@ class LicenseServiceTest {
 
         LicenseResponse response = licenseService.createLicense(request, "admin");
 
-        // Enterprise plan: 2000 EPS, OVERFLOW_BILLING mode, burst 2.0
+        // Enterprise plan: 2000 EPS, 60M monthly, OVERFLOW_BILLING mode, burst 2.0
         assertThat(response.getEpsQuota()).isEqualTo(2000);
+        assertThat(response.getMonthlyQuota()).isEqualTo(60_000_000L);
         assertThat(response.getMode()).isEqualTo(LicenseMode.OVERFLOW_BILLING);
         assertThat(response.getBurstMultiplier()).isEqualTo(2.0);
         assertThat(response.getPlan()).isEqualTo(LicensePlan.ENTERPRISE);
+    }
+
+    // ── monthly quota update ──
+
+    @Test
+    void updateLicense_overrideMonthlyQuota() {
+        UpdateLicenseRequest request = UpdateLicenseRequest.builder()
+                .monthlyQuota(10_000_000L)
+                .build();
+
+        when(licenseRepo.findById(licenseId)).thenReturn(Optional.of(starterLicense));
+        when(licenseRepo.save(any(License.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        LicenseResponse response = licenseService.updateLicense(licenseId, request, "admin");
+
+        assertThat(response.getMonthlyQuota()).isEqualTo(10_000_000L);
+        assertThat(response.getEpsQuota()).isEqualTo(100);
+    }
+
+    // ── getAllActivePolicies includes monthly quota ──
+
+    @Test
+    void getAllActivePolicies_includesMonthlyQuota() {
+        when(licenseRepo.findAll()).thenReturn(List.of(starterLicense));
+
+        var policies = licenseService.getAllActivePolicies();
+
+        assertThat(policies).hasSize(1);
+        assertThat(policies.get(0).getMonthlyQuota()).isEqualTo(3_000_000L);
+        assertThat(policies.get(0).getValidFrom()).isEqualTo(startDate);
     }
 }
