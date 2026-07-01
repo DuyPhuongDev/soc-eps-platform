@@ -33,3 +33,14 @@ build/
 .vscode/
 .claude/
 .cursor/
+docs/
+tools/
+
+/data
+/config
+
+### MacOS ###
+.DS_Store
+
+### lua config ###
+.luarc.json
