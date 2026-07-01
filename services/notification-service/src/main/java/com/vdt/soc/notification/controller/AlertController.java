@@ -56,7 +56,6 @@ public class AlertController {
         return AlertResponse.builder()
                 .id(alert.getId())
                 .tenantId(alert.getTenantId())
-                .licenseId(alert.getLicenseId())
                 .type(alert.getType())
                 .severity(alert.getSeverity())
                 .threshold(alert.getThreshold())

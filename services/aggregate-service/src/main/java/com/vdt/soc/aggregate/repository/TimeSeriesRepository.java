@@ -11,15 +11,8 @@ import java.util.UUID;
 
 public interface TimeSeriesRepository extends JpaRepository<TimeSeriesData, TimeSeriesDataId> {
 
-    /**
-     * Query time-series data for a tenant within a time range,
-     * ordered by bucket_min ascending (for building chart datapoints).
-     */
-    List<TimeSeriesData> findByTenantIdAndBucketMinBetweenOrderByBucketMinAsc(
+    List<TimeSeriesData> findByTenantIdAndBucketTimeBetweenOrderByBucketTimeAsc(
             UUID tenantId, Instant from, Instant to);
 
-    /**
-     * Find a specific bucket row for upsert.
-     */
-    Optional<TimeSeriesData> findByTenantIdAndBucketMin(UUID tenantId, Instant bucketMin);
+    Optional<TimeSeriesData> findByTenantIdAndBucketTime(UUID tenantId, Instant bucketTime);
 }

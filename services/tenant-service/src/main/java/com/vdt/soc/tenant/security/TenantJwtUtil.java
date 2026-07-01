@@ -32,8 +32,8 @@ public class TenantJwtUtil extends JwtUtil {
                 .claim(CLAIM_USERNAME, user.getUsername())
                 .claim(CLAIM_ROLE, user.getRole().name());
 
-        if (user.getTenantId() != null) {
-            builder.claim(CLAIM_TENANT_ID, user.getTenantId().toString());
+        if (user.getTenant() != null) {
+            builder.claim(CLAIM_TENANT_ID, user.getTenant().getId().toString());
         }
 
         return builder.signWith(getSigningKey(), Jwts.SIG.HS256).compact();

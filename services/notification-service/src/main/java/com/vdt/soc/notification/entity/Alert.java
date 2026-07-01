@@ -36,9 +36,6 @@ public class Alert {
     @Column(name = "tenant_id", nullable = false)
     private UUID tenantId;
 
-    @Column(name = "license_id")
-    private UUID licenseId;
-
     @Column(nullable = false, length = 50)
     private String type;
 
@@ -46,7 +43,10 @@ public class Alert {
     @Builder.Default
     private String severity = "INFO";
 
-    private Integer threshold;
+    @Column(name = "current_value")
+    private Double currentValue;
+
+    private Double threshold;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;

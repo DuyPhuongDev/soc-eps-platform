@@ -15,16 +15,12 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Watches etcd /policies/ prefix for real-time policy changes.
- * On startup: loads all current policies into {@link PolicyCache},
- * then watches for PUT/DELETE events.
- */
 @Slf4j
 @Component
 public class EtcdPolicyWatcher {
@@ -75,7 +71,7 @@ public class EtcdPolicyWatcher {
             }
             List<PolicyDTO> policies = kvs.stream()
                     .map(kv -> deserialize(kv.value()))
-                    .filter(p -> p != null)
+                    .filter(Objects::nonNull)
                     .toList();
             if (!policies.isEmpty()) {
                 policyCache.replaceAll(policies);

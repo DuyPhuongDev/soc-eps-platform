@@ -2,7 +2,7 @@ package com.vdt.soc.aggregate.controller;
 
 import com.vdt.soc.aggregate.dto.MetricsResponse;
 import com.vdt.soc.aggregate.dto.TimeseriesResponse;
-import com.vdt.soc.aggregate.metric.MetricsService;
+import com.vdt.soc.aggregate.service.MetricsService;
 import com.vdt.soc.common.core.enumeration.LicensePlan;
 import com.vdt.soc.common.security.JwtAuthenticationFilter;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,6 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 

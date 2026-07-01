@@ -135,4 +135,3 @@ volumes:
   eps-redis-data:
   kafka-data-1:
   eps-timescaledb-aggregate-data:
-  eps-timescaledb-notification-data:

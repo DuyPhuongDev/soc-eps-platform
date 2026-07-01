@@ -29,7 +29,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class KafkaEventForwarder {
 
-    private static final String TOPIC_PREFIX = "events.";
+    private static final String TOPIC = "events";
 
     private final KafkaSender<String, String> kafkaSender;
     private final ObjectMapper objectMapper;
@@ -43,7 +43,7 @@ public class KafkaEventForwarder {
      * or errors if Kafka is unreachable
      */
     public Mono<Void> send(EventRequest event, UUID tenantId) {
-        String topic = TOPIC_PREFIX + tenantId;
+        String topic = TOPIC;
         String key = tenantId.toString();
 
         String value;
@@ -82,7 +82,7 @@ public class KafkaEventForwarder {
      * or errors on first Kafka failure
      */
     public Mono<Void> sendBatch(List<EventRequest> events, UUID tenantId) {
-        String topic = TOPIC_PREFIX + tenantId;
+        String topic = TOPIC;
         String key = tenantId.toString();
 
         Flux<SenderRecord<String, String, String>> records = Flux.fromIterable(events)

@@ -66,7 +66,7 @@ TenantService {
                 .passwordHash(passwordEncoder.encode(request.getAdminPassword()))
                 .email(request.getEmail())
                 .fullName(request.getAdminFullName())
-                .tenantId(tenant.getId())
+                .tenant(tenant)
                 .role(UserRole.TENANT_ADMIN)
                 .status(UserStatus.ACTIVE)
                 .build();

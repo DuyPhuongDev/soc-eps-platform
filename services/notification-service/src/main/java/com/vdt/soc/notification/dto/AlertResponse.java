@@ -20,10 +20,9 @@ public class AlertResponse {
 
     private Long id;
     private UUID tenantId;
-    private UUID licenseId;
     private String type;
     private String severity;
-    private Integer threshold;
+    private Double threshold;
     private String message;
     private boolean isRead;
     private Instant createdAt;

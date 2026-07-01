@@ -3,6 +3,8 @@ package com.vdt.soc.aggregate.alert;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.vdt.soc.common.core.dto.AlertEvent;
+import com.vdt.soc.common.core.enumeration.AlertSeverity;
+import com.vdt.soc.common.core.enumeration.AlertType;
 import com.vdt.soc.common.kafka.KafkaTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +14,11 @@ import org.springframework.stereotype.Component;
 import java.util.UUID;
 
 /**
- * Publishes alert events to Kafka topic {@code alert-events} using
- * Spring Kafka (non-reactive).
+ * Publishes alert events to Kafka topic {@code alert-events}.
  * <p>
- * Replaces the old {@code AlertEngine} which wrote directly to the shared
- * {@code license_db.alerts} table. Now notification-service consumes these
- * events and handles debounce, persistence, and delivery (email, OTT, etc.).
+ * Only fires new alerts — debounce is handled by {@link AlertJob}
+ * via its in-memory active-keys map. When a condition clears,
+ * the key is silently removed; no resolve event is sent.
  */
 @Slf4j
 @Component
@@ -29,34 +30,17 @@ public class AlertEventPublisher {
 
     /**
      * Publish a "fire alert" event.
-     * The notification-service will debounce and only create a new alert
-     * if no active alert of the same type exists for this tenant.
      */
-    public void fire(UUID tenantId, UUID licenseId, String alertType,
-                     String severity, String message, Integer threshold) {
+    public void fire(UUID tenantId, AlertType alertType,
+                     AlertSeverity severity, String message,
+                     Double currentValue, Double threshold) {
         publish(AlertEvent.builder()
                 .tenantId(tenantId)
-                .licenseId(licenseId)
                 .alertType(alertType)
                 .severity(severity)
                 .message(message)
+                .currentValue(currentValue)
                 .threshold(threshold)
-                .resolved(false)
-                .build());
-    }
-
-    /**
-     * Publish a "resolve alert" event.
-     * The notification-service will mark all active alerts of the given type
-     * for this tenant as read.
-     */
-    public void resolve(UUID tenantId, String alertType) {
-        publish(AlertEvent.builder()
-                .tenantId(tenantId)
-                .alertType(alertType)
-                .severity("INFO")
-                .message("Auto-resolved")
-                .resolved(true)
                 .build());
     }
 
@@ -77,8 +61,8 @@ public class AlertEventPublisher {
                         log.warn("Failed to publish alert event: tenant={}, type={}: {}",
                                 event.getTenantId(), event.getAlertType(), ex.getMessage());
                     } else {
-                        log.debug("Alert event published: tenant={}, type={}, resolved={}, offset={}",
-                                event.getTenantId(), event.getAlertType(), event.isResolved(),
+                        log.debug("Alert event published: tenant={}, type={}, offset={}",
+                                event.getTenantId(), event.getAlertType(),
                                 result != null ? result.getRecordMetadata().offset() : -1);
                     }
                 });
