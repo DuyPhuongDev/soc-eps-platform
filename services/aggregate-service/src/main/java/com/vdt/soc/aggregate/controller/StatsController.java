@@ -1,7 +1,7 @@
 package com.vdt.soc.aggregate.controller;
 
 import com.vdt.soc.aggregate.dto.DropStatsResponse;
-import com.vdt.soc.aggregate.metric.DropStatsService;
+import com.vdt.soc.aggregate.service.DropStatsService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -8,14 +8,11 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Composite primary key for {@link TimeSeriesData}.
- */
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
 public class TimeSeriesDataId implements Serializable {
 
     private UUID tenantId;
-    private Instant bucketMin;
+    private Instant bucketTime;
 }

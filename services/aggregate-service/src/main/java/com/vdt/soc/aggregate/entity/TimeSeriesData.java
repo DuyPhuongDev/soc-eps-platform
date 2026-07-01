@@ -15,12 +15,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Maps to {@code timeseries_data} table in aggregate_db schema (TimescaleDB hypertable).
- * One row per tenant per minute bucket.
- * <p>
- * Primary key is composite: {@code (tenant_id, bucket_min)}.
- */
 @Entity
 @Table(name = "timeseries_data", schema = "aggregate_db")
 @IdClass(TimeSeriesDataId.class)
@@ -36,8 +30,8 @@ public class TimeSeriesData {
     private UUID tenantId;
 
     @Id
-    @Column(name = "bucket_min", nullable = false)
-    private Instant bucketMin;
+    @Column(name = "bucket_time", nullable = false)
+    private Instant bucketTime;
 
     @Column(nullable = false)
     @Builder.Default

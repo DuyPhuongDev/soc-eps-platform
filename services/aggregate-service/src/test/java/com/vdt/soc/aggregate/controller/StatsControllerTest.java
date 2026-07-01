@@ -1,7 +1,7 @@
 package com.vdt.soc.aggregate.controller;
 
 import com.vdt.soc.aggregate.dto.DropStatsResponse;
-import com.vdt.soc.aggregate.metric.DropStatsService;
+import com.vdt.soc.aggregate.service.DropStatsService;
 import com.vdt.soc.common.security.JwtAuthenticationFilter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

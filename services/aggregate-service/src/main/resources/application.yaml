@@ -70,7 +70,7 @@ app:
     issuer: ${JWT_ISSUER:eps-tenant-service}
   etcd:
     endpoints: ${ETCD_ENDPOINTS:http://localhost:2379}
-    key-prefix: /policies/
+    policy-prefix: /policies/
     connect-timeout-ms: 5000
     watch-retry-delay-ms: 3000
 

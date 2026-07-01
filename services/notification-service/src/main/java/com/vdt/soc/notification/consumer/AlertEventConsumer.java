@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Consumes alert events from Kafka topic {@code alert-events}
- * and delegates to {@link AlertEngine} for debounce + persistence.
+ * and delegates to {@link AlertEngine} for persistence.
  */
 @Slf4j
 @Component
@@ -26,18 +26,9 @@ public class AlertEventConsumer {
     public void onAlertEvent(String message) {
         try {
             AlertEvent event = objectMapper.readValue(message, AlertEvent.class);
-            log.debug("Received alert event: tenant={}, type={}, resolved={}",
-                    event.getTenantId(), event.getAlertType(), event.isResolved());
-
-            alertEngine.process(
-                    event.getTenantId(),
-                    event.getLicenseId(),
-                    event.getAlertType(),
-                    event.getSeverity(),
-                    event.getMessage(),
-                    event.getThreshold(),
-                    event.isResolved()
-            );
+            log.debug("Received alert event: tenant={}, type={}",
+                    event.getTenantId(), event.getAlertType());
+            alertEngine.process(event);
         } catch (JsonProcessingException e) {
             log.error("Failed to deserialize AlertEvent: {}", e.getMessage());
         } catch (Exception e) {

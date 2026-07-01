@@ -2,7 +2,7 @@ package com.vdt.soc.aggregate.controller;
 
 import com.vdt.soc.aggregate.dto.MetricsResponse;
 import com.vdt.soc.aggregate.dto.TimeseriesResponse;
-import com.vdt.soc.aggregate.metric.MetricsService;
+import com.vdt.soc.aggregate.service.MetricsService;
 import com.vdt.soc.common.core.dto.ErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
