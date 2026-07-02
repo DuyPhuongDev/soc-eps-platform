@@ -15,15 +15,7 @@ import reactor.kafka.sender.SenderRecord;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Forwards accepted events to Kafka for downstream aggregate-service consumption.
- * <p>
- * Topic pattern: events.{tenantId}
- * Partition key: tenantId.toString() (ensures per-tenant ordering)
- * <p>
- * Errors are propagated to caller (EnforcementEngine) — if Kafka is down,
- * the engine returns HTTP 503.
- */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -34,14 +26,6 @@ public class KafkaEventForwarder {
     private final KafkaSender<String, String> kafkaSender;
     private final ObjectMapper objectMapper;
 
-    /**
-     * Forward an accepted event to Kafka.
-     *
-     * @param event    the validated event
-     * @param tenantId tenant identifier (used for topic and partition key)
-     * @return Mono<Void> that completes when Kafka acknowledges,
-     * or errors if Kafka is unreachable
-     */
     public Mono<Void> send(EventRequest event, UUID tenantId) {
         String topic = TOPIC;
         String key = tenantId.toString();
@@ -69,18 +53,6 @@ public class KafkaEventForwarder {
                 });
     }
 
-    /**
-     * Forward a batch of accepted events to Kafka as a single reactive stream.
-     * <p>
-     * Each event is serialized to a {@link SenderRecord} and emitted in-order.
-     * Kafka producer-side batching (linger.ms, batch.size) is handled by the
-     * underlying {@link KafkaSender} configuration — we simply push a Flux.
-     *
-     * @param events   list of validated events to forward
-     * @param tenantId tenant identifier (used for topic and partition key)
-     * @return Mono&lt;Void&gt; that completes when all events are acknowledged,
-     * or errors on first Kafka failure
-     */
     public Mono<Void> sendBatch(List<EventRequest> events, UUID tenantId) {
         String topic = TOPIC;
         String key = tenantId.toString();

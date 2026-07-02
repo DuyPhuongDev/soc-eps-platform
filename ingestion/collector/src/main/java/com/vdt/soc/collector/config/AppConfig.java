@@ -25,10 +25,6 @@ public class AppConfig {
         return mapper;
     }
 
-    /**
-     * Shared WebClient.Builder with minimal connection pool for internal API polling.
-     * Not used for tenant ingest — only for cache refresh calls to license-service and tenant-service.
-     */
     @Bean
     public WebClient.Builder webClientBuilder(InternalApiProperties props) {
         HttpClient httpClient = HttpClient.create()

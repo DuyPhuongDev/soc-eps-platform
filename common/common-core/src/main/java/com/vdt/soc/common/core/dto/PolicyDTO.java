@@ -43,9 +43,6 @@ public class PolicyDTO {
     private Long monthlyQuota;
     private LicenseMode mode;
     private Double burstMultiplier;
-    /**
-     * License start date — anchor for monthly quota window computation.
-     */
     private Instant validFrom;
     private Instant validUntil;
 
