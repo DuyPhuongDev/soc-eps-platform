@@ -1,8 +1,5 @@
 -- V1__init_schema.sql
--- Aggregate service: timeseries_data on TimescaleDB
--- 15-second bucket time-series for EPS metrics
 
--- Enable TimescaleDB extension
 CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 CREATE TABLE aggregate_db.timeseries_data
@@ -16,7 +13,6 @@ CREATE TABLE aggregate_db.timeseries_data
     PRIMARY KEY (tenant_id, bucket_time)
 );
 
--- Convert to Hypertable, partitioned by bucket_time (1 day chunks)
 SELECT create_hypertable('aggregate_db.timeseries_data', 'bucket_time',
                          chunk_time_interval => INTERVAL '1 day',
                          if_not_exists => TRUE);

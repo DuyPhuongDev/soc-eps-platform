@@ -19,28 +19,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Watches etcd /policies/ prefix for real-time policy changes.
- * <p>
- * On startup:
- * <ol>
- *   <li>Loads all current policies from etcd into {@link PolicyCache}</li>
- *   <li>Starts a watch for PUT/DELETE events on the /policies/ prefix</li>
- * </ol>
- * <p>
- * Watch events are applied immediately to PolicyCache — no polling delay.
- * On watch disconnect, auto-retries after {@code watchRetryDelayMs} (3s).
- * <p>
- * The scheduled poll in {@link CacheRefresher} serves as a fallback for
- * when etcd is completely unavailable.
- */
 @Slf4j
 @Component
 public class EtcdPolicyWatcher {
 
     private final EtcdWatchClient watchClient;
     private final PolicyCache policyCache;
-    private final SnapshotManager snapshotManager;
     private final CacheRefresher cacheRefresher;
     private final ObjectMapper objectMapper;
     private final String prefix;
@@ -51,14 +35,12 @@ public class EtcdPolicyWatcher {
 
     public EtcdPolicyWatcher(EtcdWatchClient watchClient,
                              PolicyCache policyCache,
-                             SnapshotManager snapshotManager,
                              CacheRefresher cacheRefresher,
                              ObjectMapper objectMapper,
                              @Value("${app.etcd.policy-prefix:/policies/}") String prefix,
                              @Value("${app.etcd.watch-retry-delay-ms:3000}") long watchRetryDelayMs) {
         this.watchClient = watchClient;
         this.policyCache = policyCache;
-        this.snapshotManager = snapshotManager;
         this.cacheRefresher = cacheRefresher;
         this.objectMapper = objectMapper;
         this.prefix = prefix;
@@ -99,7 +81,6 @@ public class EtcdPolicyWatcher {
 
             if (!policies.isEmpty()) {
                 policyCache.replaceAll(policies);
-                snapshotManager.writePolicies(policies);
                 log.info("Loaded {} policies from etcd on startup", policies.size());
             }
         } catch (Exception e) {
@@ -144,7 +125,6 @@ public class EtcdPolicyWatcher {
                 }
                 default -> log.debug("Unhandled etcd watch event type: {}", event.getEventType());
             }
-            snapshotManager.writePolicies(List.copyOf(policyCache.snapshot()));
         } catch (Exception e) {
             log.warn("Error handling etcd policy watch event for key={}: {}", key, e.getMessage());
         }

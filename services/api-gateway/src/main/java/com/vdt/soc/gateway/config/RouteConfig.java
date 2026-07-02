@@ -31,10 +31,11 @@ public class RouteConfig {
                         .path("/api/v1/dashboard/**")
                         .uri("lb://dashboard-service"))
 
-                // ── Metric Aggregator (future) ──
-                .route("metric-aggregator", r -> r
-                        .path("/api/v1/metrics/**")
-                        .uri("lb://metric-aggregator"))
+                // ── Telemetry / Aggregate Service ──
+                .route("aggregate-service", r -> r
+                        .path("/api/v1/telemetry/**", "/api/v1/tenants/*/metrics/**",
+                                "/api/v1/tenants/*/stats/**", "/api/v1/alerts/**")
+                        .uri("lb://aggregate-service"))
 
                 .build();
     }

@@ -13,22 +13,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Enforces monthly event-volume quota using Redis atomic counters.
- * <p>
- * Window keys are derived from the license start date, not wall-clock time:
- * <ul>
- *   <li>Monthly window: {@code floor((now - startDate) / 30d)} — resets each 30d</li>
- * </ul>
- * <p>
- * When a license is renewed (startDate changes), the window key naturally
- * shifts forward, effectively resetting the counters.
- * <p>
- * Lua script atomically checks + increments the monthly counter.
- * If the quota would be exceeded, no increment occurs and the call returns
- * {@code 0}. Otherwise the counter is incremented and the call returns
- * {@code requested}.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor

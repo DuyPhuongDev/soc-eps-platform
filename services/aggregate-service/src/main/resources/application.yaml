@@ -4,8 +4,6 @@ server:
 spring:
   application:
     name: aggregate-service
-
-  # ── TimescaleDB (aggregate-service dedicated) ──
   datasource:
     url: jdbc:postgresql://${AGGREGATE_DB_HOST:localhost}:${AGGREGATE_DB_PORT:5435}/${AGGREGATE_DB_NAME:eps_aggregate_db}
     driver-class-name: org.postgresql.Driver
@@ -38,7 +36,6 @@ spring:
     out-of-order: false
     validate-on-migrate: true
 
-  # ── Redis (blocking) ──
   data:
     redis:
       host: ${REDIS_HOST:localhost}

@@ -51,13 +51,12 @@ app:
     internal-secret: ${INTERNAL_SECRET:change-me-please}
     connect-timeout-ms: 3000
     read-timeout-ms: 5000
+    apiKeyUri: /api/v1/internal/api-keys
+    policyUri: /api/v1/licenses/internal/policies
 
   # Cache refresh
   cache:
     refresh-interval-seconds: ${CACHE_REFRESH_INTERVAL:30}
-    snapshot-dir: ${CACHE_SNAPSHOT_DIR:config/snapshots}
-    policy-snapshot-file: policies.json
-    api-key-snapshot-file: api-keys.json
 
 logging:
   level:

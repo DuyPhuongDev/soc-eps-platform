@@ -10,20 +10,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Token Bucket implementation using Redis Lua script for atomicity.
- * <p>
- * Bucket key:  "bucket:{tenantId}"
- * Capacity:    epsQuota * burstMultiplier
- * Refill rate: epsQuota tokens/sec
- * <p>
- * The Lua script reads current tokens, refills based on elapsed time,
- * attempts to consume, and persists the updated state — all in one
- * atomic Redis operation. No race conditions across collector instances.
- * <p>
- * Supports partial consumption: if the bucket has fewer tokens than
- * requested, all available tokens are consumed and returned.
- */
+
 @Slf4j
 @RequiredArgsConstructor
 public class TokenBucketRedis implements TokenBucketEngine {
@@ -71,9 +58,7 @@ public class TokenBucketRedis implements TokenBucketEngine {
                 });
     }
 
-    /**
-     * Safely convert a Lua script result element to Long.
-     */
+
     private static Long toLong(Object o) {
         if (o == null) return 0L;
         if (o instanceof Number n) return n.longValue();

@@ -14,16 +14,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Scheduled job that evaluates EPS threshold conditions every 30 seconds.
- * Iterates over all active tenants from PolicyCache, reads current
- * EPS data from Redis, and publishes alert events to Kafka via
- * {@link AlertEventPublisher} (consumed by notification-service).
- *
- * <p>Maintains in-memory alert state per tenant to avoid duplicate
- * firing. When the condition clears, the key is silently removed —
- * no resolve event is sent to Kafka.</p>
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -36,10 +26,7 @@ public class AlertJob {
     private static final String KEY_OK = "eps:ok:";
     private static final String KEY_DROP = "eps:drop:";
 
-    /**
-     * Tracks which alert types are currently active per tenant.
-     * Key format: "{tenantId}:{alertType}" → true if firing.
-     */
+
     private final Map<String, Boolean> activeAlerts = new ConcurrentHashMap<>();
 
     private static final int WINDOW_60S = 60;
@@ -60,11 +47,7 @@ public class AlertJob {
         log.debug("AlertJob completed");
     }
 
-    /**
-     * Evaluate alert conditions and publish to Kafka.
-     * Only fires on state transition (idle → active). When condition
-     * clears, the key is silently removed — no event sent.
-     */
+
     private void evaluate(PolicyDTO policy, WindowResult accepted, WindowResult dropped) {
         if (policy.isDefault()) {
             return;
