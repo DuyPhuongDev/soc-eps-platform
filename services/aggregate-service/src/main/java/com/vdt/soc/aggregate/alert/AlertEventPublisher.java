@@ -13,13 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-/**
- * Publishes alert events to Kafka topic {@code alert-events}.
- * <p>
- * Only fires new alerts — debounce is handled by {@link AlertJob}
- * via its in-memory active-keys map. When a condition clears,
- * the key is silently removed; no resolve event is sent.
- */
+
 @Slf4j
 @Component
 @RequiredArgsConstructor

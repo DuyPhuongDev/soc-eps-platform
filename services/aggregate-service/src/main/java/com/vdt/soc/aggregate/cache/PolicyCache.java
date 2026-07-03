@@ -11,32 +11,17 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * In-memory cache of active license policies, keyed by tenantId.
- * Populated by etcd watch on /policies/ prefix.
- * <p>
- * Thread-safe: uses ConcurrentHashMap — no lock contention on read path.
- * Refresh replaces the entire map atomically.
- */
 @Slf4j
 @Component
 public class PolicyCache {
 
     private final Map<UUID, PolicyDTO> cache = new ConcurrentHashMap<>();
 
-    /**
-     * Look up the policy for a given tenant.
-     *
-     * @param tenantId the tenant identifier
-     * @return the policy, or PolicyDTO.DEFAULT if not cached
-     */
+
     public PolicyDTO get(UUID tenantId) {
         return cache.getOrDefault(tenantId, PolicyDTO.DEFAULT);
     }
 
-    /**
-     * Replace all entries with a fresh set.
-     */
     public void replaceAll(Collection<PolicyDTO> policies) {
         Map<UUID, PolicyDTO> newMap = policies.stream()
                 .filter(p -> p.getTenantId() != null)
@@ -66,9 +51,6 @@ public class PolicyCache {
         log.debug("PolicyCache remove: tenant={}", tenantId);
     }
 
-    /**
-     * @return a snapshot copy of all cached entries
-     */
     public Collection<PolicyDTO> snapshot() {
         return Map.copyOf(cache).values();
     }

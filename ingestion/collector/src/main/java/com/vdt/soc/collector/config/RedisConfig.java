@@ -13,16 +13,6 @@ import org.springframework.data.redis.core.script.RedisScript;
 
 import java.util.List;
 
-/**
- * Collector-specific Redis configuration.
- * <p>
- * The {@code ReactiveRedisTemplate<String, String>} bean is provided by
- * Spring Boot's {@code RedisReactiveAutoConfiguration} via
- * {@code ReactiveStringRedisTemplate} (which extends {@code ReactiveRedisTemplate<String, String>}).
- * <p>
- * This config registers the Token Bucket Lua script, the Quota Check Lua script,
- * the {@link TokenBucketEngine}, and the {@link QuotaEnforcer}.
- */
 @Configuration
 @RequiredArgsConstructor
 public class RedisConfig {

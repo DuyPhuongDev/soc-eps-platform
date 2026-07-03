@@ -15,12 +15,6 @@ import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * Snapshots Redis EPS hash data into PostgreSQL {@code timeseries_data} table.
- * Runs every 15 seconds — reads only the fields belonging to the current
- * 15-second bucket and inserts a single row. No upsert needed because
- * each bucket is processed exactly once.
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -34,9 +28,6 @@ public class TimeSeriesService {
     private static final String KEY_DROP = "eps:drop:";
     private static final int BUCKET_SECONDS = 15;
 
-    /**
-     * Snapshot Redis → PostgreSQL every 15 seconds.
-     */
     @Scheduled(fixedDelay = 15_000)
     @Transactional
     public void snapshot() {
@@ -78,9 +69,6 @@ public class TimeSeriesService {
                 .build());
     }
 
-    /**
-     * Sum only the hash fields whose epoch-second key falls within [fromSec, toSec).
-     */
     private long sumHashFieldsInRange(String key, long fromSec, long toSec) {
         try {
             Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);
@@ -98,10 +86,6 @@ public class TimeSeriesService {
         }
     }
 
-    /**
-     * Find the max single-second value within [fromSec, toSec).
-     * Returns null if no fields in range.
-     */
     private Long maxHashFieldInRange(String key, long fromSec, long toSec) {
         try {
             Map<Object, Object> entries = redisTemplate.opsForHash().entries(key);

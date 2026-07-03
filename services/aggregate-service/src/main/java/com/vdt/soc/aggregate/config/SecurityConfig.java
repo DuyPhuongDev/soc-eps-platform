@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/v1/tenants/{tenantId}/metrics/**").authenticated()
                         .requestMatchers("/api/v1/tenants/{tenantId}/stats/**").authenticated()
+                        .requestMatchers("/api/v1/telemetry/**").authenticated()
                         .requestMatchers("/api/v1/alerts/**").authenticated()
                         .anyRequest().authenticated()
                 )

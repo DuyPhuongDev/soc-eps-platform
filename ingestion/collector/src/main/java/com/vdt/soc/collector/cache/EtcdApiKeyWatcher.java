@@ -14,33 +14,16 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Watches etcd /apikeys/ prefix for real-time API key changes.
- * <p>
- * On startup:
- * <ol>
- *   <li>Loads all current API keys from etcd into {@link ApiKeyCache}</li>
- *   <li>Starts a watch for PUT/DELETE events on the /apikeys/ prefix</li>
- * </ol>
- * <p>
- * Watch events are applied immediately to ApiKeyCache — no polling delay.
- * On watch disconnect, auto-retries after {@code watchRetryDelayMs} (3s).
- * <p>
- * The scheduled poll in {@link CacheRefresher} serves as a fallback for
- * when etcd is completely unavailable.
- */
 @Slf4j
 @Component
 public class EtcdApiKeyWatcher {
 
     private final EtcdWatchClient watchClient;
     private final ApiKeyCache apiKeyCache;
-    private final SnapshotManager snapshotManager;
     private final CacheRefresher cacheRefresher;
     private final ObjectMapper objectMapper;
     private final String prefix;
@@ -51,14 +34,12 @@ public class EtcdApiKeyWatcher {
 
     public EtcdApiKeyWatcher(EtcdWatchClient watchClient,
                              ApiKeyCache apiKeyCache,
-                             SnapshotManager snapshotManager,
                              CacheRefresher cacheRefresher,
                              ObjectMapper objectMapper,
                              @Value("${app.etcd.apikey-prefix:/apikeys/}") String prefix,
                              @Value("${app.etcd.watch-retry-delay-ms:3000}") long watchRetryDelayMs) {
         this.watchClient = watchClient;
         this.apiKeyCache = apiKeyCache;
-        this.snapshotManager = snapshotManager;
         this.cacheRefresher = cacheRefresher;
         this.objectMapper = objectMapper;
         this.prefix = prefix;
@@ -99,7 +80,6 @@ public class EtcdApiKeyWatcher {
 
             if (!mappings.isEmpty()) {
                 apiKeyCache.replaceAll(mappings);
-                snapshotManager.writeApiKeys(mappings);
                 log.info("Loaded {} API keys from etcd on startup", mappings.size());
             }
         } catch (Exception e) {
@@ -145,7 +125,6 @@ public class EtcdApiKeyWatcher {
                 }
                 default -> log.debug("Unhandled etcd watch event type: {}", event.getEventType());
             }
-            snapshotManager.writeApiKeys(List.copyOf(apiKeyCache.snapshot()));
         } catch (Exception e) {
             log.warn("Error handling etcd api key watch event for key={}: {}", key, e.getMessage());
         }
