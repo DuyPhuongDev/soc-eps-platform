@@ -1,0 +1,100 @@
+# docker-compose.collector-lb.yaml
+# Overlay compose file: nginx load balancer + 3 collector instances.
+# Use with the base compose that defines infra (redis, kafka, etcd, postgres, timescale):
+#
+#   docker compose -f docker-compose.yaml -f docker-compose.collector-lb.yaml up -d
+#
+# Nginx listens on host port 8088 and load-balances across collector-1/2/3
+# on the shared `eps-network` bridge. All collector instances share the
+# same external state (Redis, etcd, Kafka) so horizontal scaling is safe.
+
+services:
+  # ── Collector instances (3 replicas) ────────────────────────────────
+  collector-1:
+    build:
+      context: .
+      dockerfile: ingestion/collector/Dockerfile
+    container_name: eps-collector-1
+    environment: &collector-env
+      COLLECTOR_PORT: "8081"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      KAFKA_BOOTSTRAP_SERVERS: "kafka-1:9094"
+      APP_ETCD_ENDPOINTS: "http://etcd:2379"
+      # Cache refresh via license-service / tenant-service:
+      # These services are NOT included in the base compose. If they run on
+      # the Docker host (e.g. via IDE / spring-boot:run), uncomment the lines
+      # below and adjust to host.docker.internal or the actual IP.
+      # INTERNAL_SECRET must match the secret used by those services.
+      # LICENSE_SERVICE_URL: "http://host.docker.internal:8083"
+      # TENANT_SERVICE_URL: "http://host.docker.internal:8082"
+      INTERNAL_SECRET: "${INTERNAL_SECRET:-change-me-please}"
+    networks:
+      - eps-network
+    depends_on:
+      redis:
+        condition: service_started
+      kafka-1:
+        condition: service_started
+      etcd:
+        condition: service_started
+    restart: unless-stopped
+
+  collector-2:
+    build:
+      context: .
+      dockerfile: ingestion/collector/Dockerfile
+    container_name: eps-collector-2
+    environment: *collector-env
+    networks:
+      - eps-network
+    depends_on:
+      redis:
+        condition: service_started
+      kafka-1:
+        condition: service_started
+      etcd:
+        condition: service_started
+    restart: unless-stopped
+
+  collector-3:
+    build:
+      context: .
+      dockerfile: ingestion/collector/Dockerfile
+    container_name: eps-collector-3
+    environment: *collector-env
+    networks:
+      - eps-network
+    depends_on:
+      redis:
+        condition: service_started
+      kafka-1:
+        condition: service_started
+      etcd:
+        condition: service_started
+    restart: unless-stopped
+
+  # ── Nginx Load Balancer ───────────────────────────────────────────────
+  collector-lb:
+    image: nginx:1.27-alpine
+    container_name: eps-collector-lb
+    ports:
+      - "8088:8088"
+    volumes:
+      - ./docker/collector-lb/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - eps-network
+    depends_on:
+      collector-1:
+        condition: service_started
+      collector-2:
+        condition: service_started
+      collector-3:
+        condition: service_started
+    restart: unless-stopped
+
+# Re-use the bridge network defined in the base compose so all
+# services (infra + collector + nginx) can resolve each other by name.
+networks:
+  eps-network:
+    driver: bridge

@@ -112,6 +112,31 @@ docker compose up -d
 ./mvnw -pl ingestion/collector spring-boot:run
 ```
 
+### Running Collector with Nginx Load Balancer (Docker)
+
+For high-throughput benchmarks, run **3 collector instances** behind an nginx load balancer
+entirely in Docker (no local Maven build required):
+
+```bash
+# 1. Start infrastructure (redis, kafka, etcd, ...)
+docker compose up -d
+
+# 2. Build + run collector cluster + nginx LB
+docker compose -f docker-compose.yaml -f docker-compose.collector-lb.yaml up -d
+
+# 3. Verify nginx health → collector
+curl http://localhost:8088/actuator/health
+
+# 4. Point the eps-simulator at nginx (edit tools/eps-simulator/config.json)
+#    "target": "http://localhost:8088"
+```
+
+| LB Endpoint | Description |
+|-------------|-------------|
+| `http://localhost:8088/v1/events` | Single event ingestion (via nginx round-robin) |
+| `http://localhost:8088/v1/events/batch` | Batch event ingestion (via nginx round-robin) |
+| `http://localhost:8088/actuator/health` | Actuator health (via nginx) |
+
 Each service can also be built and run independently:
 
 ```bash
