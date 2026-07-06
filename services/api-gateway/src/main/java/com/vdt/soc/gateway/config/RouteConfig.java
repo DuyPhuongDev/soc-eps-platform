@@ -21,15 +21,10 @@ public class RouteConfig {
                         .path("/api/v1/licenses/**")
                         .uri("lb://license-service"))
 
-                // ── Collector Service ──
-                .route("collector-service", r -> r
-                        .path("/api/v1/events/**")
-                        .uri("lb://collector-service"))
-
-                // ── Dashboard Service (future) ──
-                .route("dashboard-service", r -> r
-                        .path("/api/v1/dashboard/**")
-                        .uri("lb://dashboard-service"))
+                // ── notification Service ──
+                .route("notification-service", r -> r
+                        .path("/api/v1/alerts/**")
+                        .uri("lb://notification-service"))
 
                 // ── Telemetry / Aggregate Service ──
                 .route("aggregate-service", r -> r

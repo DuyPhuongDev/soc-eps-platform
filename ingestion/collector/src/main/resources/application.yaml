@@ -57,6 +57,8 @@ app:
   # Cache refresh
   cache:
     refresh-interval-seconds: ${CACHE_REFRESH_INTERVAL:30}
+  kafka:
+    event-topic: ${KAFKA_EVENT_TOPIC:events}
 
 logging:
   level:

@@ -125,6 +125,12 @@ services:
       - eps-network
     volumes:
       - ./data/etcd-data:/etcd-data
+  cloud-flared-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloud-flared-tunnel
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TOKEN}
+    networks:
+      - lms-network
 
 networks:
   eps-network:

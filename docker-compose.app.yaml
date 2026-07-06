@@ -1,0 +1,167 @@
+x-app-env: &app-env # Shared secrets — override via shell env or a .env file.
+  JWT_SECRET: ${JWT_SECRET:-change-me-please-this-secret-must-be-at-least-32-chars-long}
+  JWT_EXPIRATION_SECONDS: ${JWT_EXPIRATION_SECONDS:-3600}
+  JWT_ISSUER: ${JWT_ISSUER:-eps-tenant-service}
+  INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-internal-collector-secret-change-me}
+  MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,prometheus,metrics,info
+  # Service discovery — eureka by container name.
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+
+  # etcd (policy distribution).
+  ETCD_ENDPOINTS: http://etcd:2379
+
+services:
+  # ── Service Discovery ───────────────────────────────────────────────
+  eureka-server:
+    build:
+      context: .
+      dockerfile: services/eureka-server/Dockerfile
+    container_name: eps-eureka-server
+    environment:
+      <<: *app-env
+      EUREKA_INSTANCE_HOSTNAME: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - eps-network
+    restart: unless-stopped
+
+  # ── Control Plane ───────────────────────────────────────────────────
+  tenant-service:
+    build:
+      context: .
+      dockerfile: services/tenant-service/Dockerfile
+    container_name: eps-tenant-service
+    environment:
+      <<: *app-env
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: eps_db
+      DB_USER: eps_user
+      DB_PASSWORD: eps_password
+    ports:
+      - "8082:8082"
+    networks:
+      - eps-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      etcd:
+        condition: service_started
+    restart: unless-stopped
+
+  license-service:
+    build:
+      context: .
+      dockerfile: services/license-service/Dockerfile
+    container_name: eps-license-service
+    environment:
+      <<: *app-env
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: eps_db
+      DB_USER: eps_user
+      DB_PASSWORD: eps_password
+      KAFKA_NOTIFICATION_INBOUND_TOPIC: ${KAFKA_NOTIFICATION_INBOUND_TOPIC:-soc.events.notification}
+      LICENSE_REMINDER_CRON: ${LICENSE_REMINDER_CRON:-0 * * * * *}
+    ports:
+      - "8083:8083"
+    networks:
+      - eps-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+      etcd:
+        condition: service_started
+    restart: unless-stopped
+
+  # ── Data Plane ─────────────────────────────────────────────────────
+  aggregate-service:
+    build:
+      context: .
+      dockerfile: services/aggregate-service/Dockerfile
+    container_name: eps-aggregate-service
+    environment:
+      <<: *app-env
+      AGGREGATE_DB_HOST: timescaledb_aggregate
+      AGGREGATE_DB_PORT: "5432"
+      AGGREGATE_DB_NAME: eps_aggregate_db
+      AGGREGATE_DB_USER: eps_user
+      AGGREGATE_DB_PASSWORD: eps_password
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      KAFKA_BOOTSTRAP_SERVERS: kafka-1:9094
+      KAFKA_NOTIFICATION_INBOUND_TOPIC: ${KAFKA_NOTIFICATION_INBOUND_TOPIC:-soc.events.notification}
+    ports:
+      - "8084:8084"
+    networks:
+      - eps-network
+    depends_on:
+      timescaledb_aggregate:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      kafka-1:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    restart: unless-stopped
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: services/notification-service/Dockerfile
+    container_name: eps-notification-service
+    environment:
+      <<: *app-env
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: eps_db
+      DB_USER: eps_user
+      DB_PASSWORD: eps_password
+      KAFKA_BOOTSTRAP_SERVERS: kafka-1:9094
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      ALERT_MAIL_ENABLED: ${ALERT_MAIL_ENABLED:-false}
+      KAFKA_NOTIFICATION_INBOUND_TOPIC: ${KAFKA_NOTIFICATION_INBOUND_TOPIC:-soc.events.notification}
+    ports:
+      - "8085:8085"
+    networks:
+      - eps-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kafka-1:
+        condition: service_healthy
+      eureka-server:
+        condition: service_started
+    restart: unless-stopped
+
+  # ── Edge ────────────────────────────────────────────────────────────
+  api-gateway:
+    build:
+      context: .
+      dockerfile: services/api-gateway/Dockerfile
+    container_name: eps-api-gateway
+    environment:
+      <<: *app-env
+    ports:
+      - "8080:8080"
+    networks:
+      - eps-network
+    depends_on:
+      eureka-server:
+        condition: service_started
+      tenant-service:
+        condition: service_started
+      license-service:
+        condition: service_started
+    restart: unless-stopped
+
+networks:
+  eps-network:
+    driver: bridge
