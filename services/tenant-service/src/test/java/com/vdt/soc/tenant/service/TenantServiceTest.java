@@ -97,7 +97,7 @@ class TenantServiceTest {
         verify(userRepository).save(userCaptor.capture());
         User savedUser = userCaptor.getValue();
         assertThat(savedUser.getRole()).isEqualTo(UserRole.TENANT_ADMIN);
-        assertThat(savedUser.getTenantId()).isEqualTo(tenantId);
+        assertThat(savedUser.getTenant().getId()).isEqualTo(tenantId);
         assertThat(savedUser.getPasswordHash()).isEqualTo("hashed-pw");
 
         ArgumentCaptor<TenantApiKey> keyCaptor = ArgumentCaptor.forClass(TenantApiKey.class);

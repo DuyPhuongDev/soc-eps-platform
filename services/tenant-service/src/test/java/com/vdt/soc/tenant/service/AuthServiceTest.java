@@ -5,6 +5,7 @@ import com.vdt.soc.common.core.enumeration.UserStatus;
 import com.vdt.soc.common.security.JwtProperties;
 import com.vdt.soc.tenant.dto.LoginRequest;
 import com.vdt.soc.tenant.dto.LoginResponse;
+import com.vdt.soc.tenant.entity.Tenant;
 import com.vdt.soc.tenant.entity.User;
 import com.vdt.soc.tenant.exception.UnauthorizedException;
 import com.vdt.soc.tenant.repository.UserRepository;
@@ -41,14 +42,17 @@ class AuthServiceTest {
     private AuthService authService;
 
     private User user;
+    private Tenant tenant;
 
     @BeforeEach
     void setUp() {
+        tenant = Tenant.builder().name("Acme").build();
+        tenant.setId(UUID.randomUUID());
         user = User.builder()
                 .username("alice")
                 .passwordHash("hashed")
                 .email("alice@x.com")
-                .tenantId(UUID.randomUUID())
+                .tenant(tenant)
                 .role(UserRole.TENANT_ADMIN)
                 .status(UserStatus.ACTIVE)
                 .build();
@@ -70,7 +74,7 @@ class AuthServiceTest {
         assertThat(response.getExpiresInSeconds()).isEqualTo(3600);
         assertThat(response.getRole()).isEqualTo(UserRole.TENANT_ADMIN);
         assertThat(response.getUsername()).isEqualTo("alice");
-        assertThat(response.getTenantId()).isEqualTo(user.getTenantId());
+        assertThat(response.getTenantId()).isEqualTo(user.getTenant().getId());
         assertThat(response.getUserId()).isEqualTo(user.getId());
     }
 
