@@ -13,6 +13,7 @@ spring:
               '[/**]':
                 allowedOrigins:
                   - http://localhost:3000
+                  - https://soc.dphuongdev.io.vn
                 allowedMethods:
                   - GET
                   - POST

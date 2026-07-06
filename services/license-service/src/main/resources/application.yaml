@@ -32,6 +32,13 @@ spring:
     table: flyway_schema_history
     out-of-order: false
     validate-on-migrate: true
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
 springdoc:
   api-docs:
     path: /v3/api-docs
@@ -47,6 +54,16 @@ app:
     key-prefix: /policies/
     connect-timeout-ms: 5000
     watch-retry-delay-ms: 3000
+
+license:
+  events:
+    license-reminder-cron: ${LICENSE_REMINDER_CRON:0 * * * * *}
+    license-reminder-days-before: ${LICENSE_REMINDER_DAY_BEFORE:7}
+    license-reminder-window-minutes: ${LICENSE_REMINDER_WINDOW_MINUTES:1440}
+
+notification:
+  events:
+    topic: ${KAFKA_NOTIFICATION_INBOUND_TOPIC:soc.events.notification}
 
 eureka:
   client:

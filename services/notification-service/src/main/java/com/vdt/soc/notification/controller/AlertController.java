@@ -1,5 +1,6 @@
 package com.vdt.soc.notification.controller;
 
+import com.vdt.soc.common.security.JwtPrincipal;
 import com.vdt.soc.notification.dto.AlertResponse;
 import com.vdt.soc.notification.entity.Alert;
 import com.vdt.soc.notification.repository.AlertRepository;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -27,11 +29,11 @@ public class AlertController {
     @GetMapping("/alerts")
     @Operation(summary = "List alerts", description = "Filter by tenantId and/or status")
     public ResponseEntity<List<AlertResponse>> listAlerts(
-            @RequestParam(required = false)
-            @Parameter(description = "Filter by tenant ID") UUID tenantId,
+            @AuthenticationPrincipal JwtPrincipal jwtPrincipal,
             @RequestParam(defaultValue = "ACTIVE")
             @Parameter(description = "Alert status: ACTIVE (isRead=false) or ALL") String status) {
 
+        UUID tenantId = jwtPrincipal.tenantId();
         List<Alert> alerts;
         if (tenantId != null) {
             if ("ACTIVE".equalsIgnoreCase(status)) {

@@ -5,16 +5,14 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
-# Copy parent POM and the eureka-server module.
-# No common modules are needed for this service.
-COPY pom.xml ./
-COPY services/eureka-server/ ./services/eureka-server/
+# Copy the full repository so Maven can resolve the full reactor for this build.
+COPY . ./
 
 # Pre-fetch dependencies (cached layer unless POM changes).
-RUN mvn -q -pl services/eureka-server dependency:go-offline || true
+RUN mvn -q -pl services/eureka-server -am dependency:go-offline -DincludeScope=test || true
 
 # Package the fat JAR.
-RUN mvn -q -pl services/eureka-server clean package -DskipTests
+RUN mvn -q -pl services/eureka-server -am clean package -DskipTests
 
 # ───────────────────── runtime stage ───────────────────
 FROM eclipse-temurin:21-jre-alpine

@@ -5,13 +5,10 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
-COPY pom.xml ./
-COPY common/common-core/ ./common/common-core/
-COPY common/common-security/ ./common/common-security/
-COPY common/common-etcd/ ./common/common-etcd/
-COPY services/aggregate-service/ ./services/aggregate-service/
+# Copy the full repository so Maven can resolve the full reactor for this build.
+COPY . ./
 
-RUN mvn -q -pl services/aggregate-service -am dependency:go-offline || true
+RUN mvn -q -pl services/aggregate-service -am dependency:go-offline -DincludeScope=test || true
 RUN mvn -q -pl services/aggregate-service -am clean package -DskipTests
 
 # ───────────────────── runtime stage ───────────────────

@@ -52,6 +52,9 @@ spring:
   # ── Kafka ──
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:29092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
 
 springdoc:
   api-docs:
@@ -71,14 +74,18 @@ app:
     connect-timeout-ms: 5000
     watch-retry-delay-ms: 3000
 
+notification:
+  events:
+    topic: ${KAFKA_NOTIFICATION_INBOUND_TOPIC:soc.events.notification}
+
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+      defaultZone: http://localhost:8761/eureka
   instance:
     prefer-ip-address: true
 
-logging:
-  level:
-    com.vdt.soc.aggregate: DEBUG
-    com.vdt.soc.aggregate.alert.AlertJob: DEBUG
+#logging:
+#  level:
+#    com.vdt.soc.aggregate: DEBUG
+#    com.vdt.soc.aggregate.alert.AlertJob: DEBUG

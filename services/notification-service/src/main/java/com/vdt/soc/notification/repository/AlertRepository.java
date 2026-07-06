@@ -1,5 +1,6 @@
 package com.vdt.soc.notification.repository;
 
+import com.vdt.soc.common.core.enumeration.AlertType;
 import com.vdt.soc.notification.entity.Alert;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -16,7 +17,7 @@ public interface AlertRepository extends JpaRepository<Alert, Long> {
      * Find active (unread) alerts of a given type for a tenant.
      * Used for debounce: don't re-fire if alert already active.
      */
-    List<Alert> findByTenantIdAndTypeAndIsReadFalse(UUID tenantId, String type);
+    List<Alert> findByTenantIdAndTypeAndIsReadFalse(UUID tenantId, AlertType type);
 
     /**
      * Find all unread alerts for a tenant.

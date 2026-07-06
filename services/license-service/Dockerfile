@@ -5,13 +5,13 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
-COPY pom.xml ./
-COPY common/common-core/ ./common/common-core/
-COPY common/common-security/ ./common/common-security/
-COPY common/common-etcd/ ./common/common-etcd/
-COPY services/license-service/ ./services/license-service/
+# Copy the full repository so Maven can resolve the full reactor for this build.
+COPY . ./
 
-RUN mvn -q -pl services/license-service -am dependency:go-offline || true
+# Pre-fetch dependencies, including test scope for modules that need it during build.
+RUN mvn -q -pl services/license-service -am dependency:go-offline -DincludeScope=test || true
+
+# Package the fat JAR (includes all common modules).
 RUN mvn -q -pl services/license-service -am clean package -DskipTests
 
 # ───────────────────── runtime stage ───────────────────

@@ -5,10 +5,10 @@ spring:
   application:
     name: notification-service
   datasource:
-    url: jdbc:postgresql://${NOTIFY_DB_HOST:localhost}:${NOTIFY_DB_PORT:5434}/${NOTIFY_DB_NAME:eps_db}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5434}/${DB_NAME:eps_db}
     driver-class-name: org.postgresql.Driver
-    username: ${NOTIFY_DB_USER:eps_user}
-    password: ${NOTIFY_DB_PASSWORD:eps_password}
+    username: ${DB_USER:eps_user}
+    password: ${DB_PASSWORD:eps_password}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
@@ -46,21 +46,16 @@ spring:
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
 
   mail:
-    host: ${SMTP_HOST:}
-    port: ${SMTP_PORT:587}
-    username: ${SMTP_USERNAME:}
-    password: ${SMTP_PASSWORD:}
-    protocol: smtp
-    default-encoding: UTF-8
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
 
 springdoc:
   api-docs:
@@ -78,13 +73,17 @@ app:
   mail:
     enabled: ${ALERT_MAIL_ENABLED:true}
 
+notification:
+  kafka:
+    inbound-topic: ${KAFKA_NOTIFICATION_INBOUND_TOPIC:soc.events.notification}
+
 eureka:
   client:
     service-url:
-      defaultZone: ${EUREKA_URI:http://localhost:8761/eureka}
+      defaultZone: http://localhost:8761/eureka
   instance:
     prefer-ip-address: true
 
-logging:
-  level:
-    com.vdt.soc.notification: DEBUG
+#logging:
+#  level:
+#    com.vdt.soc.notification: DEBUG

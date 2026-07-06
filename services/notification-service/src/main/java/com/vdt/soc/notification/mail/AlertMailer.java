@@ -1,5 +1,6 @@
 package com.vdt.soc.notification.mail;
 
+import com.vdt.soc.common.core.enumeration.AlertType;
 import com.vdt.soc.notification.client.TenantClient;
 import com.vdt.soc.notification.dto.TenantContactResponse;
 import com.vdt.soc.notification.entity.Alert;
@@ -15,8 +16,15 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * Asynchronously sends an alert email to the tenant's registered contact
@@ -33,15 +41,16 @@ public class AlertMailer {
 
     private final TenantClient tenantClient;
     private final AlertMailLogRepository mailLogRepository;
+    private final SpringTemplateEngine templateEngine;
 
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
-    public AlertMailer(TenantClient tenantClient, AlertMailLogRepository mailLogRepository) {
+    public AlertMailer(TenantClient tenantClient, AlertMailLogRepository mailLogRepository, SpringTemplateEngine templateEngine) {
         this.tenantClient = tenantClient;
         this.mailLogRepository = mailLogRepository;
+        this.templateEngine = templateEngine;
     }
-
 
     @Value("${spring.mail.username:}")
     private String fromAddress;
@@ -50,8 +59,8 @@ public class AlertMailer {
     private boolean enabled;
 
     @Async("alertMailExecutor")
-    @Transactional
-    public void send(Alert alert) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void send(Alert alert, Map<String, Object> metaData) {
         if (!enabled) {
             log.warn("Alert mail is disabled (app.mail.enabled=false); skipping alert {} email", alert.getId());
             return;
@@ -74,12 +83,17 @@ public class AlertMailer {
             }
             recipient = tenant.getEmail();
 
+            // Tạo và gửi Email HTML dạng MimeMessage
             MimeMessage message = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
             helper.setFrom(StringUtils.hasText(fromAddress) ? fromAddress : "noreply@eps.local");
             helper.setTo(recipient);
             helper.setSubject(buildSubject(alert));
-            helper.setText(buildBody(alert), false);
+
+
+            String htmlBody = buildHtmlBody(alert, metaData);
+            helper.setText(htmlBody, true);
 
             mailSender.send(message);
 
@@ -88,6 +102,9 @@ public class AlertMailer {
         } catch (MailException | MessagingException ex) {
             log.error("Failed to send alert email to {} for alert {}", recipient, alert.getId(), ex);
             logStatus(alert, recipient, "FAILED", ex.getMessage());
+        } catch (Exception ex) {
+            log.error("Error generating template or processing email logic for alert {}", alert.getId(), ex);
+            logStatus(alert, recipient, "FAILED", "Template error: " + ex.getMessage());
         }
     }
 
@@ -102,24 +119,48 @@ public class AlertMailer {
     }
 
     private String buildSubject(Alert alert) {
-        return String.format("[Alert] %s — %s (Severity: %s)",
-                alert.getType(), alert.getTenantId(), alert.getSeverity());
+        if (AlertType.LICENSE_EXPIRING.equals(alert.getType())) {
+            return "[Cảnh báo] Bản quyền dịch vụ sắp hết hạn — Viettel SOC Platform";
+        }
+        return String.format("[Cảnh báo] %s — Hệ thống giám sát lưu lượng Viettel SOC", alert.getType());
     }
 
-    private String buildBody(Alert alert) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("An alert has been triggered for your tenant.").append("\n\n");
-        sb.append("Alert Type: ").append(alert.getType()).append("\n");
-        sb.append("Severity: ").append(alert.getSeverity()).append("\n");
-        sb.append("Message: ").append(alert.getMessage()).append("\n");
-        if (alert.getCurrentValue() != null) {
-            sb.append("Current Value: ").append(alert.getCurrentValue()).append("\n");
+    /**
+     * Hàm dựng HTML Context động dựa theo loại Alert và Metadata đi kèm
+     */
+    private String buildHtmlBody(Alert alert, Map<String, Object> metaData) {
+        Context ctx = new Context(Locale.forLanguageTag("vi"));
+
+        if (metaData != null) {
+            metaData.forEach(ctx::setVariable);
         }
-        if (alert.getThreshold() != null) {
-            sb.append("Threshold: ").append(alert.getThreshold()).append("\n");
+
+        ctx.setVariable("tenantId", alert.getTenantId() != null ? alert.getTenantId().toString() : ctx.getVariable("tenantId"));
+
+        if (AlertType.LICENSE_EXPIRING.equals(alert.getType())) {
+
+            if (ctx.getVariable("plan") == null) ctx.setVariable("plan", "STARTER");
+            if (ctx.getVariable("reminderStr") == null) ctx.setVariable("reminderStr", "7 ngày");
+            if (ctx.getVariable("endDateStr") == null) ctx.setVariable("endDateStr", "Liên hệ Admin");
+
+            return templateEngine.process("mail/reminder-license", ctx);
         }
-        sb.append("Occurred At: ").append(alert.getCreatedAt()).append("\n\n");
-        sb.append("Please review the platform dashboard for more details.");
-        return sb.toString();
+
+        else {
+            double currentValue = alert.getCurrentValue() != null ? alert.getCurrentValue() : 0.0;
+            double thresholdValue = alert.getThreshold() != null ? alert.getThreshold() : 1.0;
+
+            if (ctx.getVariable("threshold") == null) {
+                long thresholdPercent = Math.round((currentValue / thresholdValue) * 100);
+                ctx.setVariable("threshold", thresholdPercent == 0 ? 70 : thresholdPercent);
+            }
+
+            ctx.setVariable("epsQuota", (int) thresholdValue);
+            ctx.setVariable("currentEps", (int) currentValue);
+            ctx.setVariable("message", alert.getMessage() != null ? alert.getMessage() : ctx.getVariable("message"));
+
+            if (ctx.getVariable("mode") == null) ctx.setVariable("mode", "THROTTLE");
+            return templateEngine.process("mail/alert-eps", ctx);
+        }
     }
 }
