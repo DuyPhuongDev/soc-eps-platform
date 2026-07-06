@@ -36,8 +36,8 @@ public class UserResponse {
                 .fullName(user.getFullName())
                 .role(user.getRole())
                 .status(user.getStatus())
-                .tenantId(user.getTenant() != null? user.getTenant().getId(): null)
-                .tenantName(user.getTenant() != null? user.getTenant().getName(): null)
+                .tenantId(user.getTenant() != null ? user.getTenant().getId() : null)
+                .tenantName(user.getTenant() != null ? user.getTenant().getName() : null)
                 .build();
     }
 }

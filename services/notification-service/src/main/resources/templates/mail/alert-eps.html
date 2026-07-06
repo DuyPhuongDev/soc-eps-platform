@@ -1,107 +1,116 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8"/>
-  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <link href="https://fonts.googleapis.com" rel="preconnect"/>
-  <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@600;700&display=swap" rel="stylesheet"/>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@600;700&display=swap"
+          rel="stylesheet"/>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f9f9ff; -webkit-font-smoothing: antialiased;">
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f9f9ff; padding: 20px 10px;">
-  <tr>
-    <td align="center">
-      <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; border: 1px solid #c3c5d7; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); overflow: hidden;">
+<table border="0" cellpadding="0" cellspacing="0" style="background-color: #f9f9ff; padding: 20px 10px;" width="100%">
+    <tr>
+        <td align="center">
+            <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; border: 1px solid #c3c5d7; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); overflow: hidden;"
+                   width="100%">
 
-        <!-- Header dynamically changes color based on threshold -->
-        <tr>
-          <td style="padding: 16px 20px; border-bottom: 1px solid #e5e7eb;"
-              th:styleappend="${threshold >= 100} ? 'background-color: #fff0f0;' : 'background-color: #fff9f0;'">
-            <table width="100%" border="0" cellpadding="0" cellspacing="0">
-              <tr>
-                <td align="left" style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700;"
-                    th:styleappend="${threshold >= 100} ? 'color: #ba1a1a;' : 'color: #d16d00;'"
-                    th:text="${threshold >= 100} ? '🚨 CẢNH BÁO: VƯỢT QUÁ HẠN NGẠCH EPS' : '⚠️ CẢNH BÁO: LƯU LƯỢNG EPS TĂNG CAO'">
-                  ⚠️ CẢNH BÁO: LƯU LƯỢNG EPS TĂNG CAO
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
+                <!-- Header dynamically changes color based on threshold -->
+                <tr>
+                    <td style="padding: 16px 20px; border-bottom: 1px solid #e5e7eb;"
+                        th:styleappend="${threshold >= 100} ? 'background-color: #fff0f0;' : 'background-color: #fff9f0;'">
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                            <tr>
+                                <td align="left"
+                                    style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700;"
+                                    th:styleappend="${threshold >= 100} ? 'color: #ba1a1a;' : 'color: #d16d00;'"
+                                    th:text="${threshold >= 100} ? '🚨 CẢNH BÁO: VƯỢT QUÁ HẠN NGẠCH EPS' : '⚠️ CẢNH BÁO: LƯU LƯỢNG EPS TĂNG CAO'">
+                                    ⚠️ CẢNH BÁO: LƯU LƯỢNG EPS TĂNG CAO
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
 
-        <!-- Main Content -->
-        <tr>
-          <td style="padding: 32px 24px; background-color: #ffffff;">
-            <p style="font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 15px; line-height: 24px; color: #434654; margin: 0 0 24px 0;">
-              Hệ thống ghi nhận lưu lượng **Events Per Second (EPS)** của Tenant hiện tại đã vượt ngưỡng giới hạn cấu hình.
-            </p>
+                <!-- Main Content -->
+                <tr>
+                    <td style="padding: 32px 24px; background-color: #ffffff;">
+                        <p style="font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 15px; line-height: 24px; color: #434654; margin: 0 0 24px 0;">
+                            Hệ thống ghi nhận lưu lượng **Events Per Second (EPS)** của Tenant hiện tại đã vượt ngưỡng
+                            giới hạn cấu hình.
+                        </p>
 
-            <!-- Alert Box -->
-            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border-radius: 8px; overflow: hidden; margin-bottom: 24px; border: 1px solid;"
-                   th:styleappend="${threshold >= 100} ? 'background-color: #fff0f0; border-color: #ffdad6;' : 'background-color: #fff9f0; border-color: #ffe8cc;'">
-              <tr>
-                <td style="padding: 24px;">
-                  <table width="100%" border="0" cellpadding="0" cellspacing="0">
-                    <tr>
-                      <td align="left">
-                        <div style="font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;"
-                             th:styleappend="${threshold >= 100} ? 'color: #ba1a1a;' : 'color: #d16d00;'">
-                          Mức độ tiêu thụ hiện tại
+                        <!-- Alert Box -->
+                        <table border="0" cellpadding="0" cellspacing="0" style="border-radius: 8px; overflow: hidden; margin-bottom: 24px; border: 1px solid;"
+                               th:styleappend="${threshold >= 100} ? 'background-color: #fff0f0; border-color: #ffdad6;' : 'background-color: #fff9f0; border-color: #ffe8cc;'"
+                               width="100%">
+                            <tr>
+                                <td style="padding: 24px;">
+                                    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                        <tr>
+                                            <td align="left">
+                                                <div style="font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;"
+                                                     th:styleappend="${threshold >= 100} ? 'color: #ba1a1a;' : 'color: #d16d00;'">
+                                                    Mức độ tiêu thụ hiện tại
+                                                </div>
+                                                <div style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 36px; font-weight: 700; letter-spacing: -0.02em;"
+                                                     th:styleappend="${threshold >= 100} ? 'color: #ba1a1a;' : 'color: #d16d00;'"
+                                                     th:text="${threshold} + '%'">
+                                                    75%
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- Metrics Detail -->
+                        <table border="0" cellpadding="0" cellspacing="0" style="font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; color: #434654; line-height: 24px; margin-bottom: 32px; background-color: #f8fafc; padding: 16px; border-radius: 8px;"
+                               width="100%">
+                            <tr>
+                                <td><strong>Tenant ID:</strong> <span th:text="${tenantId}">04639ba3-4afa-4b35-b48a-e3bcc5304372</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>EPS Quota được cấp:</strong> <span th:text="${epsQuota}">50</span> EPS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>EPS ghi nhận:</strong> <span th:text="${currentEps}">38</span> EPS</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Chế độ xử lý hiện tại:</strong>
+                                    <span style="font-weight: 600; color: #ba1a1a;" th:text="${mode}">THROTTLE</span>
+                                </td>
+                            </tr>
+                        </table>
+
+                        <!-- CTA Button -->
+                        <table border="0" cellpadding="0" cellspacing="0" th:if="${threshold >= 100}" width="100%">
+                            <tr>
+                                <td align="center">
+                                    <a href="#"
+                                       style="display: inline-block; background-color: #ba1a1a; color: #ffffff; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; padding: 14px 32px; border-radius: 9999px; text-decoration: none;">
+                                        Nâng cấp Quota ngay
+                                    </a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <!-- Footer -->
+                <tr>
+                    <td style="background-color: #f8fafc; border-top: 1px solid #e5e7eb; padding: 24px; text-align: center;">
+                        <div style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 11px; color: #94a3b8;">
+                            Đây là email cảnh báo tự động từ hệ thống giám sát hạn ngạch. Vui lòng không phản hồi email
+                            này.
                         </div>
-                        <div style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 36px; font-weight: 700; letter-spacing: -0.02em;"
-                             th:styleappend="${threshold >= 100} ? 'color: #ba1a1a;' : 'color: #d16d00;'"
-                             th:text="${threshold} + '%'">
-                          75%
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
-                </td>
-              </tr>
+                    </td>
+                </tr>
             </table>
-
-            <!-- Metrics Detail -->
-            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; color: #434654; line-height: 24px; margin-bottom: 32px; background-color: #f8fafc; padding: 16px; border-radius: 8px;">
-              <tr>
-                <td><strong>Tenant ID:</strong> <span th:text="${tenantId}">04639ba3-4afa-4b35-b48a-e3bcc5304372</span></td>
-              </tr>
-              <tr>
-                <td><strong>EPS Quota được cấp:</strong> <span th:text="${epsQuota}">50</span> EPS</td>
-              </tr>
-              <tr>
-                <td><strong>EPS ghi nhận:</strong> <span th:text="${currentEps}">38</span> EPS</td>
-              </tr>
-              <tr>
-                <td><strong>Chế độ xử lý hiện tại:</strong>
-                  <span style="font-weight: 600; color: #ba1a1a;" th:text="${mode}">THROTTLE</span>
-                </td>
-              </tr>
-            </table>
-
-            <!-- CTA Button -->
-            <table width="100%" border="0" cellpadding="0" cellspacing="0" th:if="${threshold >= 100}">
-              <tr>
-                <td align="center">
-                  <a href="#" style="display: inline-block; background-color: #ba1a1a; color: #ffffff; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; padding: 14px 32px; border-radius: 9999px; text-decoration: none;">
-                    Nâng cấp Quota ngay
-                  </a>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- Footer -->
-        <tr>
-          <td style="background-color: #f8fafc; border-top: 1px solid #e5e7eb; padding: 24px; text-align: center;">
-            <div style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 11px; color: #94a3b8;">
-              Đây là email cảnh báo tự động từ hệ thống giám sát hạn ngạch. Vui lòng không phản hồi email này.
-            </div>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
+        </td>
+    </tr>
 </table>
 </body>
 </html>

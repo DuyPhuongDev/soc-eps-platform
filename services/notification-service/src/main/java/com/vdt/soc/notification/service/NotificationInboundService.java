@@ -8,13 +8,10 @@ import com.vdt.soc.common.core.exception.BadRequestException;
 import com.vdt.soc.notification.entity.Alert;
 import com.vdt.soc.notification.mail.AlertMailer;
 import com.vdt.soc.notification.repository.AlertRepository;
-import com.vdt.soc.notification.util.JsonCodec;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;

@@ -1,27 +1,30 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="vi">
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 
     <link href="https://fonts.googleapis.com" rel="preconnect"/>
     <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Lexend:wght@600;700&display=swap"
+          rel="stylesheet"/>
 </head>
 <body style="margin: 0; padding: 0; background-color: #f9f9ff; -webkit-font-smoothing: antialiased;">
 <!-- Wrapper ngoài cùng -->
-<table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #f9f9ff; padding: 20px 10px;">
+<table border="0" cellpadding="0" cellspacing="0" style="background-color: #f9f9ff; padding: 20px 10px;" width="100%">
     <tr>
         <td align="center">
             <!-- Container chính (Max width 600px) -->
-            <table width="100%" border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; border: 1px solid #c3c5d7; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); overflow: hidden;">
+            <table border="0" cellpadding="0" cellspacing="0" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; border: 1px solid #c3c5d7; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); overflow: hidden;"
+                   width="100%">
 
                 <!-- Header -->
                 <tr>
                     <td style="padding: 16px 20px; border-bottom: 1px solid #e5e7eb; background-color: #ffffff;">
-                        <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
                             <tr>
-                                <td align="left" style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 20px; font-weight: 700; color: #ba1a1a;">
+                                <td align="left"
+                                    style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 20px; font-weight: 700; color: #ba1a1a;">
                                     Thông Báo Hệ Thống
                                 </td>
                             </tr>
@@ -35,23 +38,28 @@
 
                         <!-- Đoạn văn bản thông báo chính -->
                         <p style="font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; font-weight: 400; color: #434654; margin: 0 0 24px 0;">
-                            Xin chào Quý khách, gói bản quyền của bạn sắp hết hạn. Vui lòng kiểm tra lại thông tin chi tiết bên dưới để tránh gián đoạn dịch vụ.
+                            Xin chào Quý khách, gói bản quyền của bạn sắp hết hạn. Vui lòng kiểm tra lại thông tin chi
+                            tiết bên dưới để tránh gián đoạn dịch vụ.
                         </p>
 
                         <!-- Thẻ thông tin chi tiết License -->
-                        <table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: #fff4f2; border: 1px solid #ffdad6; border-radius: 8px; overflow: hidden; margin-bottom: 24px;">
+                        <table border="0" cellpadding="0" cellspacing="0" style="background-color: #fff4f2; border: 1px solid #ffdad6; border-radius: 8px; overflow: hidden; margin-bottom: 24px;"
+                               width="100%">
                             <tr>
                                 <td style="padding: 20px;">
 
                                     <!-- Hàng 1: Loại Plan & Trạng thái còn lại -->
-                                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;">
+                                    <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 16px;"
+                                           width="100%">
                                         <tr>
-                                            <td align="left" style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 18px; line-height: 26px; font-weight: 600; color: #93000a;">
+                                            <td align="left"
+                                                style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 18px; line-height: 26px; font-weight: 600; color: #93000a;">
                                                 Gói: <span th:text="${plan}">STARTER</span>
                                             </td>
                                             <td align="right">
                                                 <!-- Đổi màu đỏ nổi bật cho badge thời gian còn lại -->
-                                                <span style="display: inline-block; background-color: #ba1a1a; color: #ffffff; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 9999px;" th:text="'Còn ' + ${reminderStr}">
+                                                <span style="display: inline-block; background-color: #ba1a1a; color: #ffffff; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 9999px;"
+                                                      th:text="'Còn ' + ${reminderStr}">
                                                     Còn 7 ngày
                                                 </span>
                                             </td>
@@ -59,13 +67,15 @@
                                     </table>
 
                                     <!-- Hàng 2: Hạn sử dụng cụ thể -->
-                                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 16px; border-bottom: 1px dashed #ffdad6; padding-bottom: 16px;">
+                                    <table border="0" cellpadding="0" cellspacing="0" style="margin-bottom: 16px; border-bottom: 1px dashed #ffdad6; padding-bottom: 16px;"
+                                           width="100%">
                                         <tr>
                                             <td align="left">
                                                 <div style="font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 500; color: #b22a2a; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">
                                                     Ngày hết hạn (End Date)
                                                 </div>
-                                                <div style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 700; color: #ba1a1a; letter-spacing: -0.01em;" th:text="${endDateStr}">
+                                                <div style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 700; color: #ba1a1a; letter-spacing: -0.01em;"
+                                                     th:text="${endDateStr}">
                                                     05/07/2027
                                                 </div>
                                             </td>
@@ -73,15 +83,21 @@
                                     </table>
 
                                     <!-- Hàng 3: Chi tiết Quota bổ sung từ JSON -->
-                                    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; color: #434654; line-height: 20px;">
+                                    <table border="0" cellpadding="0" cellspacing="0" style="font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; color: #434654; line-height: 20px;"
+                                           width="100%">
                                         <tr>
-                                            <td style="padding: 2px 0;"><strong>Tenant ID:</strong> <span th:text="${tenantId}">04639...</span></td>
+                                            <td style="padding: 2px 0;"><strong>Tenant ID:</strong> <span
+                                                    th:text="${tenantId}">04639...</span></td>
                                         </tr>
                                         <tr>
-                                            <td style="padding: 2px 0;"><strong>EPS Quota:</strong> <span th:text="${epsQuota}">50</span> EPS</td>
+                                            <td style="padding: 2px 0;"><strong>EPS Quota:</strong> <span
+                                                    th:text="${epsQuota}">50</span> EPS
+                                            </td>
                                         </tr>
                                         <tr>
-                                            <td style="padding: 2px 0;"><strong>Monthly Quota:</strong> <span th:text="${#numbers.formatInteger(monthlyQuota, 3, 'POINT')}">3.000.000</span></td>
+                                            <td style="padding: 2px 0;"><strong>Monthly Quota:</strong> <span
+                                                    th:text="${#numbers.formatInteger(monthlyQuota, 3, 'POINT')}">3.000.000</span>
+                                            </td>
                                         </tr>
                                     </table>
 
@@ -90,10 +106,11 @@
                         </table>
 
                         <!-- Nút CTA Gia hạn -->
-                        <table width="100%" border="0" cellpadding="0" cellspacing="0">
+                        <table border="0" cellpadding="0" cellspacing="0" width="100%">
                             <tr>
                                 <td align="center">
-                                    <a href="#" style="display: inline-block; background-color: #ba1a1a; color: #ffffff; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; padding: 14px 32px; border-radius: 9999px; text-decoration: none; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(186, 26, 26, 0.2);">
+                                    <a href="#"
+                                       style="display: inline-block; background-color: #ba1a1a; color: #ffffff; font-family: 'Inter', Helvetica, Arial, sans-serif; font-size: 14px; line-height: 20px; font-weight: 600; padding: 14px 32px; border-radius: 9999px; text-decoration: none; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(186, 26, 26, 0.2);">
                                         Gia hạn ngay bản quyền
                                     </a>
                                 </td>
@@ -107,8 +124,10 @@
                 <tr>
                     <td style="background-color: #f8fafc; border-top: 1px solid #e5e7eb; padding: 32px; text-align: center;">
                         <div style="margin-bottom: 16px; font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 12px;">
-                            <a href="#" style="color: #64748b; text-decoration: none; margin: 0 10px;">Hỗ trợ khách hàng</a>
-                            <a href="#" style="color: #64748b; text-decoration: none; margin: 0 10px;">Chính sách bảo mật</a>
+                            <a href="#" style="color: #64748b; text-decoration: none; margin: 0 10px;">Hỗ trợ khách
+                                hàng</a>
+                            <a href="#" style="color: #64748b; text-decoration: none; margin: 0 10px;">Chính sách bảo
+                                mật</a>
                         </div>
                         <div style="font-family: 'Lexend', Helvetica, Arial, sans-serif; font-size: 12px; color: #94a3b8;">
                             © 2026 Toàn bộ quyền sở hữu thuộc về hệ thống quản lý License.

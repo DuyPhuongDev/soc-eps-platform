@@ -30,9 +30,9 @@ public class EtcdPolicyWatcher {
     private final ObjectMapper objectMapper;
     private final String prefix;
     private final long watchRetryDelayMs;
-    private volatile Watch.Watcher watcher;
     private final ScheduledExecutorService retryExecutor = Executors.newSingleThreadScheduledExecutor(
             Thread.ofVirtual().name("etcd-policy-watch-retry-").factory());
+    private volatile Watch.Watcher watcher;
 
     public EtcdPolicyWatcher(EtcdWatchClient watchClient,
                              PolicyCache policyCache,

@@ -37,18 +37,57 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TelemetryService {
 
-    private final StringRedisTemplate redisTemplate;
-    private final PolicyCache policyCache;
-    private final TimeSeriesRepository timeSeriesRepo;
-
     static final String KEY_OK = "eps:ok:";
     static final String KEY_DROP = "eps:drop:";
     static final String KEY_MONTHLY = "quota:monthly:";
     static final Duration MONTHLY_WINDOW = Duration.ofDays(30);
-
     private static final long MIN_BUCKET_MS = 15_000;
+    private final StringRedisTemplate redisTemplate;
+    private final PolicyCache policyCache;
+    private final TimeSeriesRepository timeSeriesRepo;
 
     // ── 2.1 Current EPS ────────────────────────────────────────────
+
+    private static long roundUpBucket(long bucketMs) {
+        if (bucketMs < MIN_BUCKET_MS) return MIN_BUCKET_MS;
+        long reminder = bucketMs % MIN_BUCKET_MS;
+        if (reminder == 0) return bucketMs;
+        return bucketMs + MIN_BUCKET_MS - reminder;
+    }
+
+    // ── 2.2 Today's Usage ──────────────────────────────────────────
+
+    private static int avgLastN(List<Long> values, int n) {
+        if (values.isEmpty()) return 0;
+        return (int) Math.round(values.stream().mapToLong(Long::longValue).sum() / (double) n);
+    }
+
+    // ── 2.3 Monthly Quota ──────────────────────────────────────────
+
+    private static List<Integer> toIntList(List<Long> source) {
+        return source.stream().map(Long::intValue).toList();
+    }
+
+    // ── 2.4 Dropped Today ──────────────────────────────────────────
+
+    private static Instant computeNextReset(PolicyDTO policy) {
+        if (policy.getValidFrom() == null) {
+            return YearMonth.now(ZoneOffset.UTC).plusMonths(1)
+                    .atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        }
+        long windowSec = MONTHLY_WINDOW.getSeconds();
+        long startSec = policy.getValidFrom().getEpochSecond();
+        long currentWindow = (Instant.now().getEpochSecond() - startSec) / windowSec;
+        return Instant.ofEpochSecond(startSec + (currentWindow + 1) * windowSec);
+    }
+
+    // ── 2.5 License Status ─────────────────────────────────────────
+
+    private static Instant startOfToday() {
+        return LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant();
+    }
+
+    // ── 3.1 EPS History ────────────────────────────────────────────
 
     public EpsCurrentResponse getEpsCurrent(UUID tenantId) {
         long nowSec = Instant.now().getEpochSecond();
@@ -64,7 +103,7 @@ public class TelemetryService {
                 .build();
     }
 
-    // ── 2.2 Today's Usage ──────────────────────────────────────────
+    // ── 3.2 Dropped Events ─────────────────────────────────────────
 
     public UsageTodayResponse getUsageToday(UUID tenantId) {
         Instant startOfDay = startOfToday();
@@ -75,7 +114,7 @@ public class TelemetryService {
                 .accepted(accepted).build();
     }
 
-    // ── 2.3 Monthly Quota ──────────────────────────────────────────
+    // ── 4.1 Usage Summary ──────────────────────────────────────────
 
     public QuotaMonthlyResponse getQuotaMonthly(UUID tenantId) {
         PolicyDTO policy = policyCache.get(tenantId);
@@ -96,8 +135,6 @@ public class TelemetryService {
                 .build();
     }
 
-    // ── 2.4 Dropped Today ──────────────────────────────────────────
-
     public DroppedTodayResponse getDroppedToday(UUID tenantId) {
         Instant startOfDay = startOfToday();
         Instant now = Instant.now();
@@ -115,8 +152,6 @@ public class TelemetryService {
                 .build();
     }
 
-    // ── 2.5 License Status ─────────────────────────────────────────
-
     public LicenseStatusResponse getLicenseStatus(UUID tenantId) {
         PolicyDTO policy = policyCache.get(tenantId);
         int daysLeft = 0;
@@ -128,8 +163,6 @@ public class TelemetryService {
         return LicenseStatusResponse.builder()
                 .daysLeft(daysLeft).expiryDate(expiryDate).build();
     }
-
-    // ── 3.1 EPS History ────────────────────────────────────────────
 
     public List<EpsHistoryPoint> getEpsHistory(UUID tenantId, Instant from, Instant to, int maxDataPoints) {
 
@@ -159,8 +192,6 @@ public class TelemetryService {
                 });
     }
 
-    // ── 3.2 Dropped Events ─────────────────────────────────────────
-
     public List<DroppedEventPoint> getDroppedEventsLast24h(UUID tenantId) {
 
         Instant now = Instant.now();
@@ -184,8 +215,6 @@ public class TelemetryService {
                         .build());
     }
 
-    // ── 4.1 Usage Summary ──────────────────────────────────────────
-
     public List<UsageSummaryRow> getUsageSummary(UUID tenantId) {
         Instant now = Instant.now();
         return List.of(
@@ -198,10 +227,10 @@ public class TelemetryService {
     }
 
     public CurrentEpsResponse getCurrentEps(UUID tenantId) {
-        long lastSecond = Instant.now().getEpochSecond()-1;
+        long lastSecond = Instant.now().getEpochSecond() - 1;
         long currentAcceptEps = readLastSecond(KEY_OK + tenantId, lastSecond);
         long currentDroppedEps = readLastSecond(KEY_DROP + tenantId, lastSecond);
-        return new CurrentEpsResponse(currentAcceptEps+currentDroppedEps);
+        return new CurrentEpsResponse(currentAcceptEps + currentDroppedEps);
     }
 
     // ── Private helpers ────────────────────────────────────────────
@@ -217,13 +246,6 @@ public class TelemetryService {
         }
     }
 
-    private static long roundUpBucket(long bucketMs) {
-        if (bucketMs < MIN_BUCKET_MS) return MIN_BUCKET_MS;
-        long reminder = bucketMs % MIN_BUCKET_MS;
-        if (reminder == 0) return bucketMs;
-        return bucketMs + MIN_BUCKET_MS - reminder;
-    }
-
     private List<Long> readLastNSeconds(String redisKey, long nowSec, int n) {
         List<Long> result = new ArrayList<>(n);
         try {
@@ -237,15 +259,6 @@ public class TelemetryService {
             for (int i = 0; i < n; i++) result.add(0L);
         }
         return result;
-    }
-
-    private static int avgLastN(List<Long> values, int n) {
-        if (values.isEmpty()) return 0;
-        return (int) Math.round(values.stream().mapToLong(Long::longValue).sum() / (double) n);
-    }
-
-    private static List<Integer> toIntList(List<Long> source) {
-        return source.stream().map(Long::intValue).toList();
     }
 
     private long sumAcceptedBetween(UUID tenantId, Instant from, Instant to) {
@@ -303,21 +316,6 @@ public class TelemetryService {
             result.add(builder.build(bStart, acc, drop, count));
         }
         return result;
-    }
-
-    private static Instant computeNextReset(PolicyDTO policy) {
-        if (policy.getValidFrom() == null) {
-            return YearMonth.now(ZoneOffset.UTC).plusMonths(1)
-                    .atDay(1).atStartOfDay(ZoneOffset.UTC).toInstant();
-        }
-        long windowSec = MONTHLY_WINDOW.getSeconds();
-        long startSec = policy.getValidFrom().getEpochSecond();
-        long currentWindow = (Instant.now().getEpochSecond() - startSec) / windowSec;
-        return Instant.ofEpochSecond(startSec + (currentWindow + 1) * windowSec);
-    }
-
-    private static Instant startOfToday() {
-        return LocalDate.now(ZoneOffset.UTC).atStartOfDay(ZoneOffset.UTC).toInstant();
     }
 
     private UsageSummaryRow buildSummaryRow(UUID tenantId, String label,

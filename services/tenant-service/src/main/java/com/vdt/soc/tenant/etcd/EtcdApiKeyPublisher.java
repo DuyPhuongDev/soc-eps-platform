@@ -61,8 +61,8 @@ public class EtcdApiKeyPublisher {
      * Publish (create or update) a single API key mapping to etcd.
      * Key: /apikeys/{apiKeyHash}
      *
-     * @param tenantId    the tenant this API key belongs to
-     * @param apiKeyHash  SHA-256 hex of the raw API key
+     * @param tenantId   the tenant this API key belongs to
+     * @param apiKeyHash SHA-256 hex of the raw API key
      */
     public void publish(UUID tenantId, String apiKeyHash) {
         String key = properties.getKeyPrefix() + apiKeyHash;
@@ -92,7 +92,7 @@ public class EtcdApiKeyPublisher {
             log.warn("API key publish interrupted for hash {}: {}", apiKeyHash, e.getMessage());
         } catch (ExecutionException | TimeoutException e) {
             log.warn("Failed to publish API key to etcd for hash {}: {}. "
-                    + "Collector will pick up via poll fallback.",
+                            + "Collector will pick up via poll fallback.",
                     apiKeyHash, e.getMessage());
         }
     }

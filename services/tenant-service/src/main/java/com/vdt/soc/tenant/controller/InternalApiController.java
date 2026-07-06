@@ -33,7 +33,7 @@ public class InternalApiController {
 
     @GetMapping("/tenants/{id}")
     public ResponseEntity<TenantResponse> getTenant(@PathVariable UUID id,
-                                                     @RequestHeader(value = "X-Internal-Secret", required = false) String secret) {
+                                                    @RequestHeader(value = "X-Internal-Secret", required = false) String secret) {
         verifySecret(secret);
         return ResponseEntity.ok(tenantService.getTenant(id));
     }

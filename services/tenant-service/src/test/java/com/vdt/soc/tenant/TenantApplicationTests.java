@@ -32,6 +32,10 @@ import static org.mockito.Mockito.mock;
 })
 class TenantApplicationTests {
 
+    @Test
+    void contextLoads() {
+    }
+
     @TestConfiguration
     static class TestConfig {
         @Bean
@@ -39,9 +43,5 @@ class TenantApplicationTests {
         Client etcdClient() {
             return mock(Client.class);
         }
-    }
-
-    @Test
-    void contextLoads() {
     }
 }

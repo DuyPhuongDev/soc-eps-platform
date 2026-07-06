@@ -19,17 +19,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class AlertJob {
 
+    private static final String KEY_OK = "eps:ok:";
+    private static final String KEY_DROP = "eps:drop:";
+    private static final int WINDOW_60S = 60;
     private final PolicyCache policyCache;
     private final AlertEventPublisher alertEventPublisher;
     private final StringRedisTemplate redisTemplate;
-
-    private static final String KEY_OK = "eps:ok:";
-    private static final String KEY_DROP = "eps:drop:";
-
-
     private final Map<String, Boolean> activeAlerts = new ConcurrentHashMap<>();
-
-    private static final int WINDOW_60S = 60;
 
     @Scheduled(fixedDelay = 30_000)
     public void checkAlerts() {
@@ -38,7 +34,7 @@ public class AlertJob {
         for (PolicyDTO policy : policyCache.snapshot()) {
             try {
                 WindowResult accepted = sumHashFieldsWindow(KEY_OK + policy.getTenantId(), nowSec - WINDOW_60S);
-                WindowResult dropped  = sumHashFieldsWindow(KEY_DROP + policy.getTenantId(), nowSec - WINDOW_60S);
+                WindowResult dropped = sumHashFieldsWindow(KEY_DROP + policy.getTenantId(), nowSec - WINDOW_60S);
                 evaluate(policy, accepted, dropped);
             } catch (Exception e) {
                 log.warn("Alert check failed for tenant={}: {}", policy.getTenantId(), e.getMessage());
@@ -60,7 +56,7 @@ public class AlertJob {
         double acceptedEps = accepted.sum / (double) actualSec;
 
         String key100 = tenantId + ":EPS_100_PCT";
-        String key70  = tenantId + ":EPS_70_PCT";
+        String key70 = tenantId + ":EPS_70_PCT";
 
         if (dropped.sum > 0 || epsQuota > 0 && acceptedEps >= epsQuota) {
             // CRITICAL: throttling — events are being dropped
@@ -105,10 +101,6 @@ public class AlertJob {
         activeAlerts.remove(key);
     }
 
-    private record WindowResult(long sum, int fields) {
-        static final WindowResult EMPTY = new WindowResult(0, 0);
-    }
-
     private WindowResult sumHashFieldsWindow(String key, long fromSec) {
         try {
             long[] sum = {0};
@@ -128,5 +120,9 @@ public class AlertJob {
             log.debug("Failed to read Redis hash {}: {}", key, e.getMessage());
             return WindowResult.EMPTY;
         }
+    }
+
+    private record WindowResult(long sum, int fields) {
+        static final WindowResult EMPTY = new WindowResult(0, 0);
     }
 }

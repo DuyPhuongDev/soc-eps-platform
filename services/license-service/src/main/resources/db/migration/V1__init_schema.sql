@@ -2,10 +2,10 @@
 CREATE TABLE licenses
 (
     id               UUID PRIMARY KEY     DEFAULT gen_random_uuid(),
-    version          BIGINT       NOT NULL DEFAULT 0,
+    version          BIGINT      NOT NULL DEFAULT 0,
     created_by       varchar(255),
     last_modified_by varchar(255),
-    deleted          BOOLEAN               DEFAULT false,
+    deleted          BOOLEAN              DEFAULT false,
     tenant_id        UUID        NOT NULL, -- FK logic đến tenant-service.tenants
     eps_quota        INTEGER     NOT NULL CHECK (eps_quota > 0),
     mode             VARCHAR(50) NOT NULL DEFAULT 'THROTTLE'
@@ -40,7 +40,7 @@ CREATE TABLE alerts
     license_id UUID        REFERENCES licenses (id) ON DELETE SET NULL,
     type       VARCHAR(50) NOT NULL
         CHECK (type IN ('USAGE_PERCENT', 'LICENSE_EXPIRING', 'NO_LOG_DETECTED')),
-    threshold INTEGER,
+    threshold  INTEGER,
     message    TEXT        NOT NULL,
     is_read    BOOLEAN     NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()

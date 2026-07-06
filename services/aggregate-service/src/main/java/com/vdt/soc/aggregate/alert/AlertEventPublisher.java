@@ -1,12 +1,9 @@
 package com.vdt.soc.aggregate.alert;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vdt.soc.common.core.dto.AlertEvent;
 import com.vdt.soc.common.core.dto.SimpleNotificationEvent;
 import com.vdt.soc.common.core.enumeration.AlertSeverity;
 import com.vdt.soc.common.core.enumeration.AlertType;
-import com.vdt.soc.common.kafka.KafkaTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -78,6 +75,7 @@ public class AlertEventPublisher {
             log.error("Cannot serialize notification key={}: {}", event.getEventId(), ex.getMessage(), ex);
         }
     }
+
     private String nullToEmpty(String value) {
         return value == null ? "" : value;
     }

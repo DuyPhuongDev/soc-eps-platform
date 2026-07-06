@@ -20,13 +20,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class TimeSeriesService {
 
-    private final StringRedisTemplate redisTemplate;
-    private final PolicyCache policyCache;
-    private final TimeSeriesRepository timeSeriesRepo;
-
     private static final String KEY_OK = "eps:ok:";
     private static final String KEY_DROP = "eps:drop:";
     private static final int BUCKET_SECONDS = 15;
+    private final StringRedisTemplate redisTemplate;
+    private final PolicyCache policyCache;
+    private final TimeSeriesRepository timeSeriesRepo;
 
     @Scheduled(fixedDelay = 15_000)
     @Transactional
@@ -53,8 +52,8 @@ public class TimeSeriesService {
     private void snapshotTenant(UUID tenantId, Instant bucketTime,
                                 long fromSec, long toSec) {
         long accepted = sumHashFieldsInRange(KEY_OK + tenantId, fromSec, toSec);
-        long dropped  = sumHashFieldsInRange(KEY_DROP + tenantId, fromSec, toSec);
-        Long maxEps   = maxHashFieldInRange(KEY_OK + tenantId, fromSec, toSec);
+        long dropped = sumHashFieldsInRange(KEY_DROP + tenantId, fromSec, toSec);
+        Long maxEps = maxHashFieldInRange(KEY_OK + tenantId, fromSec, toSec);
 
         if (accepted == 0 && dropped == 0) {
             return;

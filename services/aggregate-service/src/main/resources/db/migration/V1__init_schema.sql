@@ -1,6 +1,7 @@
 -- V1__init_schema.sql
 
-CREATE EXTENSION IF NOT EXISTS timescaledb;
+CREATE
+EXTENSION IF NOT EXISTS timescaledb;
 
 CREATE TABLE aggregate_db.timeseries_data
 (
@@ -14,8 +15,8 @@ CREATE TABLE aggregate_db.timeseries_data
 );
 
 SELECT create_hypertable('aggregate_db.timeseries_data', 'bucket_time',
-                         chunk_time_interval => INTERVAL '1 day',
-                         if_not_exists => TRUE);
+                         chunk_time_interval = > INTERVAL '1 day',
+                         if_not_exists = > TRUE);
 
 CREATE INDEX IF NOT EXISTS idx_ts_tenant_bucket
     ON aggregate_db.timeseries_data (tenant_id, bucket_time);

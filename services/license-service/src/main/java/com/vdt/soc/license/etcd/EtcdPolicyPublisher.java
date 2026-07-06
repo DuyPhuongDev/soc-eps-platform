@@ -99,7 +99,7 @@ public class EtcdPolicyPublisher {
             log.warn("Policy publish interrupted for tenant {}: {}", license.getTenantId(), e.getMessage());
         } catch (ExecutionException | TimeoutException e) {
             log.warn("Failed to publish policy to etcd for tenant {}: {}. "
-                    + "Collector will pick up via poll fallback.",
+                            + "Collector will pick up via poll fallback.",
                     license.getTenantId(), e.getMessage());
         }
     }

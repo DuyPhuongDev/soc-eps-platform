@@ -24,7 +24,6 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Asynchronously sends an alert email to the tenant's registered contact
@@ -45,18 +44,16 @@ public class AlertMailer {
 
     @Autowired(required = false)
     private JavaMailSender mailSender;
+    @Value("${spring.mail.username:}")
+    private String fromAddress;
+    @Value("${app.mail.enabled:true}")
+    private boolean enabled;
 
     public AlertMailer(TenantClient tenantClient, AlertMailLogRepository mailLogRepository, SpringTemplateEngine templateEngine) {
         this.tenantClient = tenantClient;
         this.mailLogRepository = mailLogRepository;
         this.templateEngine = templateEngine;
     }
-
-    @Value("${spring.mail.username:}")
-    private String fromAddress;
-
-    @Value("${app.mail.enabled:true}")
-    private boolean enabled;
 
     @Async("alertMailExecutor")
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -144,9 +141,7 @@ public class AlertMailer {
             if (ctx.getVariable("endDateStr") == null) ctx.setVariable("endDateStr", "Liên hệ Admin");
 
             return templateEngine.process("mail/reminder-license", ctx);
-        }
-
-        else {
+        } else {
             double currentValue = alert.getCurrentValue() != null ? alert.getCurrentValue() : 0.0;
             double thresholdValue = alert.getThreshold() != null ? alert.getThreshold() : 1.0;
 

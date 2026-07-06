@@ -46,7 +46,7 @@ public class AuthService {
                 .tokenType("Bearer")
                 .expiresInSeconds(jwtProperties.getExpirationSeconds())
                 .userId(user.getId())
-                .tenantId(user.getTenant() != null? user.getTenant().getId(): null)
+                .tenantId(user.getTenant() != null ? user.getTenant().getId() : null)
                 .role(user.getRole())
                 .username(user.getUsername())
                 .build();

@@ -6,11 +6,11 @@
 CREATE TABLE notify_db.alert_mail_log
 (
     id        BIGSERIAL PRIMARY KEY,
-    alert_id  BIGINT        NOT NULL,
-    recipient VARCHAR(255)  NULL,
-    status    VARCHAR(20)   NOT NULL,
-    error     TEXT          NULL,
-    sent_at   TIMESTAMPTZ   NOT NULL DEFAULT NOW()
+    alert_id  BIGINT      NOT NULL,
+    recipient VARCHAR(255) NULL,
+    status    VARCHAR(20) NOT NULL,
+    error     TEXT NULL,
+    sent_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE INDEX idx_alert_mail_log_alert ON notify_db.alert_mail_log (alert_id);

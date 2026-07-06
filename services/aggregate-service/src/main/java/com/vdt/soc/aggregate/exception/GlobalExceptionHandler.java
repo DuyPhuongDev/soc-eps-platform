@@ -22,19 +22,19 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex,
-                                                                HttpServletRequest request) {
+                                                               HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex,
-                                                             HttpServletRequest request) {
+                                                            HttpServletRequest request) {
         return build(HttpStatus.BAD_REQUEST, ex.getMessage(), request, null);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException ex,
-                                                           HttpServletRequest request) {
+                                                          HttpServletRequest request) {
         Map<String, String> fieldErrors = new HashMap<>();
         for (FieldError fe : ex.getBindingResult().getFieldErrors()) {
             fieldErrors.put(fe.getField(), fe.getDefaultMessage());
@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthorizationDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AuthorizationDeniedException ex,
-                                                             HttpServletRequest request) {
+                                                            HttpServletRequest request) {
         return build(HttpStatus.FORBIDDEN, ex.getMessage(), request, null);
     }
 
@@ -55,8 +55,8 @@ public class GlobalExceptionHandler {
     }
 
     private ResponseEntity<ErrorResponse> build(HttpStatus status, String message,
-                                                 HttpServletRequest request,
-                                                 Map<String, String> fieldErrors) {
+                                                HttpServletRequest request,
+                                                Map<String, String> fieldErrors) {
         ErrorResponse body = ErrorResponse.builder()
                 .timestamp(Instant.now())
                 .status(status.value())

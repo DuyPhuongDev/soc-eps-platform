@@ -11,9 +11,9 @@ import com.vdt.soc.license.dto.PageResponse;
 import com.vdt.soc.license.dto.UpdateLicenseRequest;
 import com.vdt.soc.license.entity.License;
 import com.vdt.soc.license.entity.LicenseAuditLog;
+import com.vdt.soc.license.etcd.EtcdPolicyPublisher;
 import com.vdt.soc.license.exception.LicenseNotFoundException;
 import com.vdt.soc.license.mapper.LicenseMapper;
-import com.vdt.soc.license.etcd.EtcdPolicyPublisher;
 import com.vdt.soc.license.repository.LicenseAuditLogRepository;
 import com.vdt.soc.license.repository.LicenseRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,10 +24,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 import java.time.Instant;

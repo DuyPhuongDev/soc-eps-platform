@@ -10,19 +10,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.redis.core.HashOperations;
-import org.springframework.data.redis.core.StringRedisTemplate;
-
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+import org.springframework.data.redis.core.HashOperations;
+import org.springframework.data.redis.core.StringRedisTemplate;
 
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
-import java.util.Map;
-import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
@@ -33,6 +29,7 @@ import static org.mockito.Mockito.when;
 @MockitoSettings(strictness = Strictness.LENIENT)
 class TimeSeriesServiceTest {
 
+    private final UUID tenantId = UUID.randomUUID();
     @Mock
     private StringRedisTemplate redisTemplate;
     @Mock
@@ -41,11 +38,8 @@ class TimeSeriesServiceTest {
     private TimeSeriesRepository timeSeriesRepo;
     @Mock
     private HashOperations<String, Object, Object> hashOps;
-
     @InjectMocks
     private TimeSeriesService timeSeriesService;
-
-    private final UUID tenantId = UUID.randomUUID();
     private long bucketStartSec;
 
     @BeforeEach

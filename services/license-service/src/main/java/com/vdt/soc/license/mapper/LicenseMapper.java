@@ -17,7 +17,7 @@ import java.util.List;
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface LicenseMapper {
 
-    default License toEntity(CreateLicenseRequest request){
+    default License toEntity(CreateLicenseRequest request) {
         LicensePlan plan = request.getPlan();
 
         return License.builder()

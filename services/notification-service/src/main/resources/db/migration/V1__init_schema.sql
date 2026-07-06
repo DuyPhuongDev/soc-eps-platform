@@ -16,5 +16,4 @@ CREATE TABLE notify_db.alerts
 
 CREATE INDEX idx_alerts_tenant ON notify_db.alerts (tenant_id, created_at DESC);
 CREATE INDEX idx_alerts_type ON notify_db.alerts (type, created_at DESC);
-CREATE INDEX idx_alerts_unread ON notify_db.alerts (tenant_id, is_read)
-    WHERE is_read = FALSE;
+CREATE INDEX idx_alerts_unread ON notify_db.alerts (tenant_id, is_read) WHERE is_read = FALSE;
