@@ -2,17 +2,6 @@ package com.vdt.soc.common.core.enumeration;
 
 import lombok.Getter;
 
-/**
- * Predefined license plans — each plan bundles epsQuota, monthlyQuota,
- * mode, and burstMultiplier.
- * Tenants choose a plan instead of specifying quota/mode manually.
- * <p>
- * Quota values are designed for SIEM SOC Tier 1 use cases:
- * <ul>
- *   <li>epsQuota — events per second (rate limit)</li>
- *   <li>monthlyQuota — max events per 30-day window from license start date</li>
- * </ul>
- */
 @Getter
 public enum LicensePlan {
 

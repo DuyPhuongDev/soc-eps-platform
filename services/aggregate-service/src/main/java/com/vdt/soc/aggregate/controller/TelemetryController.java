@@ -1,5 +1,6 @@
 package com.vdt.soc.aggregate.controller;
 
+import com.vdt.soc.aggregate.dto.CurrentEpsResponse;
 import com.vdt.soc.aggregate.dto.DroppedEventPoint;
 import com.vdt.soc.aggregate.dto.DroppedTodayResponse;
 import com.vdt.soc.aggregate.dto.EpsCurrentResponse;
@@ -120,5 +121,12 @@ public class TelemetryController {
     public ResponseEntity<List<UsageSummaryRow>> getUsageSummary(
             @AuthenticationPrincipal JwtPrincipal principal) {
         return ResponseEntity.ok(telemetryService.getUsageSummary(principal.tenantId()));
+    }
+
+    @GetMapping("/current-eps")
+    @Operation(summary = "Get current eps")
+    public ResponseEntity<CurrentEpsResponse> getCurrentEps(
+            @AuthenticationPrincipal JwtPrincipal principal) {
+        return ResponseEntity.ok(telemetryService.getCurrentEps(principal.tenantId()));
     }
 }

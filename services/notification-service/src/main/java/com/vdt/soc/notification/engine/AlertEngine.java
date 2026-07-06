@@ -2,6 +2,7 @@ package com.vdt.soc.notification.engine;
 
 import com.vdt.soc.common.core.dto.AlertEvent;
 import com.vdt.soc.notification.entity.Alert;
+import com.vdt.soc.notification.mail.AlertMailer;
 import com.vdt.soc.notification.repository.AlertRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ import java.util.List;
 public class AlertEngine {
 
     private final AlertRepository alertRepository;
+    private final AlertMailer alertMailer;
 
     @Transactional
     public void process(AlertEvent event) {
@@ -35,14 +37,15 @@ public class AlertEngine {
         }
         Alert alert = Alert.builder()
                 .tenantId(event.getTenantId())
-                .type(event.getAlertType().name())
-                .severity(event.getSeverity().name())
+                .type(event.getAlertType())
+                .severity(event.getSeverity())
                 .message(event.getMessage())
                 .currentValue(event.getCurrentValue())
                 .threshold(event.getThreshold())
                 .isRead(false)
                 .build();
         alertRepository.save(alert);
+        alertMailer.send(alert);
         log.info("Alert persisted: tenant={}, type={}, severity={}",
                 event.getTenantId(), event.getAlertType(), event.getSeverity());
     }

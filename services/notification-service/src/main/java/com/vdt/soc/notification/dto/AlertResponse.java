@@ -1,6 +1,8 @@
 package com.vdt.soc.notification.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.vdt.soc.common.core.enumeration.AlertSeverity;
+import com.vdt.soc.common.core.enumeration.AlertType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,8 +22,8 @@ public class AlertResponse {
 
     private Long id;
     private UUID tenantId;
-    private String type;
-    private String severity;
+    private AlertType type;
+    private AlertSeverity severity;
     private Double threshold;
     private String message;
     private boolean isRead;

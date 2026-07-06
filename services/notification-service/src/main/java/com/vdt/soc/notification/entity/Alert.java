@@ -1,5 +1,7 @@
 package com.vdt.soc.notification.entity;
 
+import com.vdt.soc.common.core.enumeration.AlertSeverity;
+import com.vdt.soc.common.core.enumeration.AlertType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,10 +18,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.Instant;
 import java.util.UUID;
 
-/**
- * Maps to the {@code alerts} hypertable in notify_db schema (TimescaleDB).
- * Notification service is the single source of truth for all alert types.
- */
+
 @Entity
 @Table(name = "alerts", schema = "notify_db")
 @Getter
@@ -37,11 +36,11 @@ public class Alert {
     private UUID tenantId;
 
     @Column(nullable = false, length = 50)
-    private String type;
+    private AlertType type;
 
     @Column(nullable = false, length = 50)
     @Builder.Default
-    private String severity = "INFO";
+    private AlertSeverity severity = AlertSeverity.INFO;
 
     @Column(name = "current_value")
     private Double currentValue;

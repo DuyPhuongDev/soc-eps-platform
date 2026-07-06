@@ -3,6 +3,7 @@ package com.vdt.soc.notification;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -11,6 +12,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "com.vdt.soc.common.security"
 })
 @EnableDiscoveryClient
+@EnableFeignClients
 @EnableKafka
 @EnableScheduling
 public class NotificationApplication {

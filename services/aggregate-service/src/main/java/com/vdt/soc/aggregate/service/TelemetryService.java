@@ -1,6 +1,7 @@
 package com.vdt.soc.aggregate.service;
 
 import com.vdt.soc.aggregate.cache.PolicyCache;
+import com.vdt.soc.aggregate.dto.CurrentEpsResponse;
 import com.vdt.soc.aggregate.dto.DroppedEventPoint;
 import com.vdt.soc.aggregate.dto.DroppedTodayResponse;
 import com.vdt.soc.aggregate.dto.EpsCurrentResponse;
@@ -196,7 +197,26 @@ public class TelemetryService {
         );
     }
 
+    public CurrentEpsResponse getCurrentEps(UUID tenantId) {
+        long lastSecond = Instant.now().getEpochSecond()-1;
+        long currentAcceptEps = readLastSecond(KEY_OK + tenantId, lastSecond);
+        long currentDroppedEps = readLastSecond(KEY_DROP + tenantId, lastSecond);
+        return new CurrentEpsResponse(currentAcceptEps+currentDroppedEps);
+    }
+
     // ── Private helpers ────────────────────────────────────────────
+    private long readLastSecond(String redisKey, long nowSec) {
+        try {
+            Object value = redisTemplate.opsForHash()
+                    .get(redisKey, String.valueOf(nowSec));
+
+            return value != null ? Long.parseLong(value.toString()) : 0L;
+        } catch (Exception e) {
+            log.debug("Failed to read Redis hash {}: {}", redisKey, e.getMessage());
+            return 0L;
+        }
+    }
+
     private static long roundUpBucket(long bucketMs) {
         if (bucketMs < MIN_BUCKET_MS) return MIN_BUCKET_MS;
         long reminder = bucketMs % MIN_BUCKET_MS;
