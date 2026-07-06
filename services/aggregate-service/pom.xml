@@ -30,13 +30,6 @@
             <version>${project.version}</version>
         </dependency>
 
-        <!-- Common Kafka (topic constants + serialization, not using reactive sender) -->
-        <dependency>
-            <groupId>com.vdt.soc</groupId>
-            <artifactId>common-kafka</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!-- Spring Kafka (KafkaTemplate for sync-style publishing) -->
         <dependency>
             <groupId>org.springframework.kafka</groupId>
