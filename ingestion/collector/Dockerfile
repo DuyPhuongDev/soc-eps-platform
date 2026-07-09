@@ -6,17 +6,10 @@
 FROM maven:3.9-eclipse-temurin-21 AS build
 WORKDIR /build
 
-# Copy the multi-module project graph needed to build `ingestion/collector`:
-# parent POM + `common/*` (collector depends on common-core/-kafka/-etcd) + `ingestion/collector`.
-COPY pom.xml ./
-COPY common/ ./common/
-COPY ingestion/ ./ingestion/
+# Copy the full repository so Maven can resolve the full reactor for this build.
+COPY . ./
 
-# Pre-fetch dependencies so this layer is cached unless a POM changes.
-# `-am` also builds the common modules the collector depends on.
-RUN mvn -q -pl ingestion/collector -am dependency:go-offline || true
-
-# Package the fat JAR produced by spring-boot-maven-plugin (replaces artifact in target/).
+RUN mvn -q -pl ingestion/collector -am dependency:go-offline -DincludeScope=test || true
 RUN mvn -q -pl ingestion/collector -am clean package -DskipTests
 
 # ───────────────────── runtime stage ───────────────────

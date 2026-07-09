@@ -46,3 +46,14 @@ tools/
 .luarc.json
 
 .env
+
+# Local Aiven config
+ingestion/collector/src/main/resources/application-dev.yaml
+
+# Certificates
+certs/
+*.jks
+*.p12
+*.pem
+*.key
+*.crt

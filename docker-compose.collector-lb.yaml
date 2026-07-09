@@ -16,19 +16,15 @@ services:
       dockerfile: ingestion/collector/Dockerfile
     container_name: eps-collector-1
     environment: &collector-env
-      COLLECTOR_PORT: "8081"
-      REDIS_HOST: "redis"
-      REDIS_PORT: "6379"
-      KAFKA_BOOTSTRAP_SERVERS: "kafka-1:9094"
-      APP_ETCD_ENDPOINTS: "http://etcd:2379"
-      # Cache refresh via license-service / tenant-service:
-      # These services are NOT included in the base compose. If they run on
-      # the Docker host (e.g. via IDE / spring-boot:run), uncomment the lines
-      # below and adjust to host.docker.internal or the actual IP.
-      # INTERNAL_SECRET must match the secret used by those services.
-      # LICENSE_SERVICE_URL: "http://host.docker.internal:8083"
-      # TENANT_SERVICE_URL: "http://host.docker.internal:8082"
-      INTERNAL_SECRET: "${INTERNAL_SECRET:-change-me-please}"
+      COLLECTOR_PORT: 8081
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      KAFKA_BOOTSTRAP_SERVERS: kafka-1:9094
+      APP_ETCD_ENDPOINTS: http://etcd:2379
+      LICENSE_SERVICE_URL: http://license-service:8083
+      TENANT_SERVICE_URL: http://tenant-service:8082
+      INTERNAL_API_SECRET: ${INTERNAL_API_SECRET:-internal-collector-secret-change-me}
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,prometheus,metrics,info
     networks:
       - eps-network
     depends_on:

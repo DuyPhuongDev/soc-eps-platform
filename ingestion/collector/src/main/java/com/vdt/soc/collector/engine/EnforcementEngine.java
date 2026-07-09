@@ -31,6 +31,7 @@ public class EnforcementEngine {
     private final QuotaEnforcer quotaEnforcer;
     private final TokenBucketEngine tokenBucket;
     private final EpsMeter epsMeter;
+    private final MetricEngine metricEngine;
     private final KafkaEventForwarder forwarder;
 
 
@@ -139,6 +140,8 @@ public class EnforcementEngine {
 
     private Mono<UUID> checkQuotaAndForward(EventRequest event, UUID tenantId) {
         PolicyDTO policy = policyCache.get(tenantId);
+
+        metricEngine.increment(event.getData().size());
 
         // Step 1: Check monthly volume quota
         return quotaEnforcer.tryConsume(tenantId, policy, policy.getValidFrom(), 1)

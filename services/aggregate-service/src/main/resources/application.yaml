@@ -5,10 +5,10 @@ spring:
   application:
     name: aggregate-service
   datasource:
-    url: jdbc:postgresql://${AGGREGATE_DB_HOST:localhost}:${AGGREGATE_DB_PORT:5435}/${AGGREGATE_DB_NAME:eps_aggregate_db}
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5434}/${DB_NAME:eps_db}
     driver-class-name: org.postgresql.Driver
-    username: ${AGGREGATE_DB_USER:eps_user}
-    password: ${AGGREGATE_DB_PASSWORD:eps_password}
+    username: ${DB_USER:eps_user}
+    password: ${DB_PASSWORD:eps_password}
     hikari:
       maximum-pool-size: 10
       minimum-idle: 5
