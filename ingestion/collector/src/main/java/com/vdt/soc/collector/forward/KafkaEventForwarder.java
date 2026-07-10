@@ -2,7 +2,7 @@ package com.vdt.soc.collector.forward;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.vdt.soc.collector.config.KafkaProperties;
+import com.vdt.soc.collector.config.KafkaTopicProperties;
 import com.vdt.soc.collector.dto.EventRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class KafkaEventForwarder {
 
-    private final KafkaProperties properties;
+    private final KafkaTopicProperties properties;
     private final KafkaSender<String, String> kafkaSender;
     private final ObjectMapper objectMapper;
 

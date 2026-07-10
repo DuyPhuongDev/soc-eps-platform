@@ -7,6 +7,6 @@ import org.springframework.stereotype.Component;
 @Data
 @Component
 @ConfigurationProperties(prefix = "app.kafka")
-public class KafkaProperties {
+public class KafkaTopicProperties {
     private String eventTopic = "events";
 }
