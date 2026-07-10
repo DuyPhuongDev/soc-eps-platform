@@ -57,7 +57,7 @@ app:
   internal-api:
     license-service-url: ${LICENSE_SERVICE_URL:http://localhost:8083}
     tenant-service-url: ${TENANT_SERVICE_URL:http://localhost:8082}
-    internal-secret: ${INTERNAL_SECRET:change-me-please}
+    internal-secret: ${INTERNAL_SECRET:internal-collector-secret-change-me}
     connect-timeout-ms: 3000
     read-timeout-ms: 5000
     apiKeyUri: /api/v1/internal/api-keys

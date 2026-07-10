@@ -6,6 +6,7 @@ import io.etcd.jetcd.KV;
 import io.etcd.jetcd.Watch;
 import io.etcd.jetcd.kv.GetResponse;
 import io.etcd.jetcd.options.GetOption;
+import io.etcd.jetcd.options.WatchOption;
 import io.etcd.jetcd.watch.WatchEvent;
 import io.etcd.jetcd.watch.WatchResponse;
 import lombok.RequiredArgsConstructor;
@@ -73,7 +74,11 @@ public class EtcdWatchClient {
         ByteSequence keyPrefix = ByteSequence.from(prefix, StandardCharsets.UTF_8);
         Watch watchClient = etcdClient.getWatchClient();
 
-        return watchClient.watch(keyPrefix, new Watch.Listener() {
+        WatchOption watchOption = WatchOption.builder()
+                .isPrefix(true)
+                .build();
+
+        return watchClient.watch(keyPrefix, watchOption, new Watch.Listener() {
             @Override
             public void onNext(WatchResponse response) {
                 for (WatchEvent event : response.getEvents()) {
