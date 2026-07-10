@@ -16,7 +16,7 @@ x-app-env: &app-env # Shared secrets — override via shell env or a .env file.
   KAFKA_SASL_MECHANISM: ${KAFKA_SASL_MECHANISM:-PLAIN}
   KAFKA_USERNAME: ${KAFKA_USERNAME}
   KAFKA_PASSWORD: ${KAFKA_PASSWORD}
-  KAFKA_TRUSTSTORE_LOCATION: file:/certs/kafka.truststore.jks
+  KAFKA_TRUSTSTORE_LOCATION: /certs/kafka.truststore.jks
   KAFKA_TRUSTSTORE_PASSWORD: ${KAFKA_TRUSTSTORE_PASSWORD}
 
 services:
@@ -53,8 +53,6 @@ services:
     networks:
       - eps-network
     depends_on:
-      postgres:
-        condition: service_healthy
       eureka-server:
         condition: service_started
       etcd:

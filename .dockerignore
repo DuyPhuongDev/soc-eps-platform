@@ -1,0 +1,7 @@
+data/
+certs/
+.git/
+.idea/
+target/
+.claude/
+.github/
